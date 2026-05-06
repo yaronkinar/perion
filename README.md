@@ -22,7 +22,29 @@ docker compose up --build
 - API: http://localhost:4000/api
 - Postgres: localhost:5432 (perion / secret / perion_rbac)
 
-The backend seeds the database on first boot.
+The backend seeds the database on first boot. This stack runs the **production-style build** (Nginx serving the built Vite bundle, Nest from compiled JS) — for the assignment's `docker compose up` deliverable.
+
+### Local development with Docker (hot reload)
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+Same URLs (`:3000` / `:4000`), same seeded data. Differences vs. the prod-like stack:
+
+- Backend runs `nest start --watch`. Editing any file under `backend/src` triggers a recompile + restart in ~1–2s.
+- Frontend runs the Vite dev server with HMR. Edits in `frontend/src` reflect instantly without a full reload (or a fast page reload for non-component modules).
+- `frontend/vite.config.ts` proxies `/api/*` to `http://backend:4000` (via the `VITE_API_TARGET` env var) so the browser only ever talks to `localhost:3000`.
+- Source is bind-mounted from the host; `node_modules` lives in an anonymous volume inside the container, so you don't need a local `npm install`.
+- Polling-based watching is enabled (`CHOKIDAR_USEPOLLING`, `WATCHPACK_POLLING`, and TypeScript `watchOptions`) so file events are reliable on Windows / WSL / macOS bind mounts.
+
+To stop and clean up:
+
+```bash
+docker compose -f docker-compose.dev.yml down
+```
+
+Add `-v` to also drop the dev Postgres volume (`perion_postgres_dev_data`) and re-seed on the next boot.
 
 ## Test credentials
 

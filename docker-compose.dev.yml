@@ -1,0 +1,95 @@
+# Local development stack with hot reload for both backend and frontend.
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up
+#   docker compose -f docker-compose.dev.yml down
+#
+# - Source is bind-mounted into the containers, so saving a file on the host
+#   triggers Nest's `--watch` rebuild (backend) and Vite's HMR (frontend).
+# - Anonymous volumes shadow the host's missing `node_modules`, so you don't
+#   need to `npm install` locally to run this.
+# - Dev-only credentials are inline; nothing in this file should leak into prod.
+# - Keeps the same ports as the production-ish docker-compose.yml so the URLs
+#   you use in the browser don't change between modes.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: perion_rbac
+      POSTGRES_USER: perion
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U perion -d perion_rbac"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://perion:secret@postgres:5432/perion_rbac
+      NODE_ENV: development
+      PORT: "4000"
+      CORS_ORIGIN: http://localhost:3000
+      SESSION_SECRET: dev-session-secret-needs-32-chars-minimum
+      JWT_SECRET: dev-jwt-secret-also-needs-32-chars-minimum
+      # Polling makes Nest's tsc --watch reliable across Windows/macOS bind
+      # mounts where native fs events from the host are not always forwarded.
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/tsconfig.json:/app/tsconfig.json
+      - ./backend/tsconfig.build.json:/app/tsconfig.build.json
+      - ./backend/nest-cli.json:/app/nest-cli.json
+      - ./backend/package.json:/app/package.json
+      - ./backend/package-lock.json:/app/package-lock.json
+      # Anonymous volume keeps the image's `node_modules` from being shadowed
+      # by the (empty) host directory.
+      - /app/node_modules
+    command: ["npm", "run", "start:dev"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      # Vite's dev-server proxy forwards `/api/*` to this target. From inside
+      # the frontend container, the backend is reachable via its service name.
+      VITE_API_TARGET: http://backend:4000
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - ./frontend/tailwind.config.ts:/app/tailwind.config.ts
+      - ./frontend/postcss.config.cjs:/app/postcss.config.cjs
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/package-lock.json:/app/package-lock.json
+      - /app/node_modules
+
+volumes:
+  postgres_dev_data:

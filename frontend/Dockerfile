@@ -33,3 +33,10 @@ COPY e2e ./e2e
 ENV CI=true
 ENV E2E_NO_WEBSERVER=1
 CMD ["npx", "playwright", "test"]
+
+# Hot-reload dev image used by docker-compose.dev.yml. Source is bind-mounted
+# at runtime; `--host 0.0.0.0` makes Vite reachable from outside the container.
+FROM deps AS dev
+ENV NODE_ENV=development
+EXPOSE 3000
+CMD ["npx", "vite", "--host", "0.0.0.0", "--port", "3000"]

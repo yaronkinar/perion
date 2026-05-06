@@ -23,3 +23,10 @@ COPY src ./src
 COPY test ./test
 ENV CI=true
 CMD ["npm", "test", "--", "--ci"]
+
+# Hot-reload dev image used by docker-compose.dev.yml. Source is bind-mounted
+# at runtime so nothing needs to be COPYed in here beyond what `deps` provides.
+FROM deps AS dev
+ENV NODE_ENV=development
+EXPOSE 4000
+CMD ["npm", "run", "start:dev"]

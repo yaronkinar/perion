@@ -63,9 +63,6 @@ export const useAuthStore = defineStore('auth', () => {
       currentUser.value = result.user;
       initialized.value = true;
       return result.user;
-    } catch (err) {
-      error.value = extractMessage(err, ERROR_MESSAGES.loginFailed);
-      throw err;
     } finally {
       loading.value = false;
     }

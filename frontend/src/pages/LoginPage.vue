@@ -95,60 +95,73 @@ const {
           {{ COPY.loadingUsers }}
         </div>
 
+        <!-- List fetch failed — nothing to pick yet -->
         <div
-          v-else-if="error"
+          v-else-if="availableUsers.length === 0 && error"
           class="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"
           role="alert"
         >
           {{ error }}
         </div>
 
-        <form
-          v-else-if="availableUsers.length > 0"
-          class="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
-          :data-test="TEST_IDS.loginForm"
-          @submit="handleSubmit"
-        >
-          <BaseSelect
-            v-model="selectedUserId"
-            :options="userOptions"
-            :label="COPY.signInAs"
-            :placeholder="COPY.selectAUser"
-            required
-            :data-test="TEST_IDS.userSelector"
-          />
-
-          <div
-            v-if="selectedUser"
-            class="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-sm"
-            :data-test-selected-email="selectedUser.email"
-          >
-            <div>
-              <p class="font-medium text-slate-900">{{ selectedUser.name }}</p>
-              <p class="text-xs text-slate-500">{{ selectedUser.email }}</p>
-            </div>
-            <BaseBadge :variant="badgeVariant(selectedUser.roleName)">
-              {{ selectedUser.roleName }}
-            </BaseBadge>
-          </div>
-
-          <BaseButton
-            variant="primary"
-            type="submit"
-            block
-            :loading="submitting"
-            :disabled="!selectedUserId"
-            :data-test="TEST_IDS.loginSubmit"
-          >
-            {{ COPY.signIn }}
-          </BaseButton>
-        </form>
-
         <div
-          v-else
+          v-else-if="availableUsers.length === 0"
           class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500"
         >
           {{ COPY.noUsersAvailable }}
+        </div>
+
+        <!-- Users loaded: keep selector usable even when a session/demo error exists -->
+        <div
+          v-else
+          class="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+        >
+          <div
+            v-if="error"
+            class="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+            role="alert"
+          >
+            {{ error }}
+          </div>
+          <form
+            :data-test="TEST_IDS.loginForm"
+            class="space-y-4"
+            @submit="handleSubmit"
+          >
+            <BaseSelect
+              v-model="selectedUserId"
+              :options="userOptions"
+              :label="COPY.signInAs"
+              :placeholder="COPY.selectAUser"
+              required
+              :data-test="TEST_IDS.userSelector"
+            />
+
+            <div
+              v-if="selectedUser"
+              class="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-sm"
+              :data-test-selected-email="selectedUser.email"
+            >
+              <div>
+                <p class="font-medium text-slate-900">{{ selectedUser.name }}</p>
+                <p class="text-xs text-slate-500">{{ selectedUser.email }}</p>
+              </div>
+              <BaseBadge :variant="badgeVariant(selectedUser.roleName)">
+                {{ selectedUser.roleName }}
+              </BaseBadge>
+            </div>
+
+            <BaseButton
+              variant="primary"
+              type="submit"
+              block
+              :loading="submitting"
+              :disabled="!selectedUserId"
+              :data-test="TEST_IDS.loginSubmit"
+            >
+              {{ COPY.signIn }}
+            </BaseButton>
+          </form>
         </div>
       </template>
 

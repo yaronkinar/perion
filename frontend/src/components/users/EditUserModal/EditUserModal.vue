@@ -27,6 +27,7 @@ const emit = defineEmits<{
   (event: 'submit', payload: { id: string; dto: UpdateUserDto }): void;
 }>();
 
+// noinspection JSUnusedLocalSymbols -- bindings are consumed by the template
 const {
   name,
   email,
