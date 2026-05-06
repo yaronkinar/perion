@@ -22,7 +22,7 @@ COPY src ./src
 ENV CI=true
 CMD ["npm", "test"]
 
-FROM mcr.microsoft.com/playwright:v1.47.2-jammy AS e2e
+FROM mcr.microsoft.com/playwright:v1.59.1-jammy AS e2e
 WORKDIR /work
 COPY package.json package-lock.json* ./
 RUN npm ci
