@@ -5,6 +5,7 @@ export const TEST_IDS = {
   loginPasswordForm: 'login-password-form',
   loginEmailInput: 'login-email-input',
   loginPasswordInput: 'login-password-input',
+  loginPasswordVisibility: 'login-password-visibility',
   loginPasswordSubmit: 'login-password-submit',
   userSelector: 'user-selector',
   loginSubmit: 'login-submit',

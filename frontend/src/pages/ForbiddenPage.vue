@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import BaseButton from '@/components/ui/BaseButton/BaseButton.vue';
+import UiPageCenter from '@/components/ui/primitives/UiPageCenter.vue';
+import UiText from '@/components/ui/primitives/UiText.vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { COPY, ROUTE_NAMES } from '@/constants/messages';
 
@@ -23,17 +25,13 @@ function goBack(): void {
 </script>
 
 <template>
-  <div class="flex min-h-full items-center justify-center px-4 py-12">
-    <div class="w-full max-w-md space-y-4 text-center">
-      <h1 class="text-2xl font-semibold text-slate-900">
-        {{ COPY.forbiddenTitle }}
-      </h1>
-      <p class="text-sm text-slate-600">
-        {{ COPY.forbiddenSubtitle }}
-      </p>
+  <UiPageCenter stack-gap="4" content-align="center">
+    <UiText variant="pageTitle">{{ COPY.forbiddenTitle }}</UiText>
+    <UiText variant="pageDescription">{{ COPY.forbiddenSubtitle }}</UiText>
+    <div>
       <BaseButton variant="primary" data-test="forbidden-cta" @click="goBack">
         {{ ctaLabel }}
       </BaseButton>
     </div>
-  </div>
+  </UiPageCenter>
 </template>

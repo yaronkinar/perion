@@ -42,6 +42,8 @@ export const COPY = {
   loginPasswordLabel: 'Password',
   loginEmailPlaceholder: 'admin@test.com',
   loginPasswordPlaceholder: 'Password123!',
+  showPassword: 'Show password',
+  hidePassword: 'Hide password',
   loginSeedHint:
     'Seeded users: admin@test.com, editor@test.com, viewer@test.com (password: Password123!).',
   dashboardTitle: 'Dashboard',

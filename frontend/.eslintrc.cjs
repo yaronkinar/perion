@@ -26,6 +26,7 @@ module.exports = {
     'vue/singleline-html-element-content-newline': 'off',
     'vue/html-self-closing': 'off',
     'vue/require-default-prop': 'off',
+    'vue/no-v-model-argument': 'off',
   },
   ignorePatterns: ['dist', 'storybook-static', 'node_modules'],
 };

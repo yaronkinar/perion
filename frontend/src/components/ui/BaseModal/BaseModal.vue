@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue';
+import BaseModalBackdrop from './BaseModalBackdrop.vue';
+import BaseModalBodyPadding from './BaseModalBodyPadding.vue';
+import BaseModalCloseButton from './BaseModalCloseButton.vue';
+import BaseModalFooterRow from './BaseModalFooterRow.vue';
+import BaseModalHeaderRow from './BaseModalHeaderRow.vue';
+import BaseModalRootLayer from './BaseModalRootLayer.vue';
+import BaseModalTitle from './BaseModalTitle.vue';
 import { useBaseModal } from './useBaseModal';
 import type { ModalSize } from './useBaseModal';
 
@@ -34,16 +41,8 @@ const hasLabelledHeader = computed<boolean>(
 <template>
   <Teleport to="body">
     <Transition name="fade">
-      <div
-        v-if="open"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
-      >
-        <div
-          class="absolute inset-0 bg-slate-900/50"
-          aria-hidden="true"
-          data-test="modal-backdrop"
-          @click="handleBackdropClick"
-        />
+      <BaseModalRootLayer v-if="open">
+        <BaseModalBackdrop @click="handleBackdropClick" />
         <div
           ref="panelRef"
           role="dialog"
@@ -56,44 +55,26 @@ const hasLabelledHeader = computed<boolean>(
             sizeClassMap[size],
           ]"
         >
-          <header
-            v-if="hasLabelledHeader"
-            class="flex items-center justify-between border-b border-slate-200 px-5 py-3"
-          >
-            <slot name="header">
-              <h2 :id="titleId" class="text-lg font-semibold text-slate-900">
-                {{ title }}
-              </h2>
-            </slot>
-            <button
-              type="button"
-              class="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-              aria-label="Close"
-              @click="emit('close')"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-5 w-5"
-              >
-                <path
-                  d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
-                />
-              </svg>
-            </button>
-          </header>
-          <div class="px-5 py-4">
+          <BaseModalHeaderRow v-if="hasLabelledHeader">
+            <template #title>
+              <slot name="header">
+                <BaseModalTitle :id="titleId">
+                  {{ title }}
+                </BaseModalTitle>
+              </slot>
+            </template>
+            <template #actions>
+              <BaseModalCloseButton @click="emit('close')" />
+            </template>
+          </BaseModalHeaderRow>
+          <BaseModalBodyPadding>
             <slot />
-          </div>
-          <footer
-            v-if="$slots.footer"
-            class="flex justify-end gap-2 border-t border-slate-200 px-5 py-3"
-          >
+          </BaseModalBodyPadding>
+          <BaseModalFooterRow v-if="$slots.footer">
             <slot name="footer" />
-          </footer>
+          </BaseModalFooterRow>
         </div>
-      </div>
+      </BaseModalRootLayer>
     </Transition>
   </Teleport>
 </template>

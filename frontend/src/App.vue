@@ -1,33 +1,29 @@
 <script setup lang="ts">
 import { useAppRoot } from '@/useAppRoot';
+import UiRootStretch from '@/components/ui/primitives/UiRootStretch.vue';
+import UiToastAnchor from '@/components/ui/primitives/UiToastAnchor.vue';
+import UiToastBubble from '@/components/ui/primitives/UiToastBubble.vue';
 
 const { items, variantClasses } = useAppRoot();
 </script>
 
 <template>
-  <div class="min-h-full">
+  <UiRootStretch>
     <RouterView />
 
-    <div
-      class="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex flex-col items-center gap-2 px-4"
-      aria-live="polite"
-    >
+    <UiToastAnchor>
       <transition-group name="toast">
-        <div
+        <UiToastBubble
           v-for="item in items"
           :key="item.id"
-          :class="[
-            'pointer-events-auto rounded-md px-4 py-2 text-sm shadow-lg',
-            variantClasses(item.variant),
-          ]"
-          role="status"
+          :bubble-class="variantClasses(item.variant)"
           :data-test="`toast-${item.variant}`"
         >
           {{ item.message }}
-        </div>
+        </UiToastBubble>
       </transition-group>
-    </div>
-  </div>
+    </UiToastAnchor>
+  </UiRootStretch>
 </template>
 
 <style scoped>

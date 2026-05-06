@@ -39,7 +39,13 @@ http.interceptors.response.use(
     const message = error.response?.data?.message ?? error.message;
 
     if (status === HTTP_STATUS.UNAUTHORIZED) {
-      if (onUnauthorized) {
+      // `GET /auth/me` returns 401 whenever there is no session — including on
+      // first paint. That response can arrive *after* a successful password
+      // login; running the global handler would clear the new session and look
+      // like a failed login.
+      const reqPath = error.config?.url ?? '';
+      const isSessionProbe = reqPath.includes('auth/me');
+      if (onUnauthorized && !isSessionProbe) {
         onUnauthorized();
       }
     } else if (status === HTTP_STATUS.FORBIDDEN) {

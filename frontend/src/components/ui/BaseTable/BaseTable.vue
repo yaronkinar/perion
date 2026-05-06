@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, unknown>">
+import UiSurface from '@/components/ui/primitives/UiSurface.vue';
 import type { TableColumn } from './BaseTable.types';
 import { useBaseTable } from './useBaseTable';
 
@@ -21,9 +22,7 @@ const { alignmentClass, showEmpty, getRowKey } = useBaseTable(props);
 </script>
 
 <template>
-  <div
-    class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
-  >
+  <UiSurface variant="table">
     <table class="min-w-full divide-y divide-slate-200 text-sm">
       <thead class="bg-slate-50">
         <tr>
@@ -86,5 +85,5 @@ const { alignmentClass, showEmpty, getRowKey } = useBaseTable(props);
         </tr>
       </tbody>
     </table>
-  </div>
+  </UiSurface>
 </template>

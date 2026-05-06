@@ -1,11 +1,24 @@
 <script setup lang="ts">
-import BaseBadge from '@/components/ui/BaseBadge/BaseBadge.vue';
-import BaseButton from '@/components/ui/BaseButton/BaseButton.vue';
-import BaseInput from '@/components/ui/BaseInput/BaseInput.vue';
-import BaseSelect from '@/components/ui/BaseSelect/BaseSelect.vue';
+import { computed, defineAsyncComponent } from 'vue';
+import UiPageCenter from '@/components/ui/primitives/UiPageCenter.vue';
+import UiSurface from '@/components/ui/primitives/UiSurface.vue';
+import UiText from '@/components/ui/primitives/UiText.vue';
 import { COPY } from '@/constants/messages';
 import { TEST_IDS } from '@/constants/test-ids';
 import { useLoginPage } from './useLoginPage';
+
+const LoginBrandHeader = defineAsyncComponent(
+  () => import('@/components/login/LoginBrandHeader/LoginBrandHeader.vue'),
+);
+const LoginDemoSignIn = defineAsyncComponent(
+  () => import('@/components/login/LoginDemoSignIn/LoginDemoSignIn.vue'),
+);
+const LoginPasswordSignIn = defineAsyncComponent(
+  () => import('@/components/login/LoginPasswordSignIn/LoginPasswordSignIn.vue'),
+);
+const LoginSignInTabs = defineAsyncComponent(
+  () => import('@/components/login/LoginSignInTabs/LoginSignInTabs.vue'),
+);
 
 const {
   availableUsers,
@@ -17,7 +30,6 @@ const {
   selectedUser,
   badgeVariant,
   handleSubmit,
-
   mode,
   setMode,
   passwordEmail,
@@ -27,196 +39,73 @@ const {
   passwordError,
   handlePasswordSubmit,
 } = useLoginPage();
+
+const hasDemoUsers = computed(() => availableUsers.value.length > 0);
 </script>
 
 <template>
-  <div class="flex min-h-full items-center justify-center px-4 py-12">
-    <div class="w-full max-w-md space-y-6">
-      <div class="text-center">
-        <span
-          class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-lg font-bold text-white shadow-md"
-          aria-hidden="true"
-        >
-          P
-        </span>
-        <h1 class="mt-4 text-2xl font-semibold text-slate-900">
-          {{ COPY.loginHeading }}
-        </h1>
-        <p class="mt-1 text-sm text-slate-600">
-          {{ COPY.loginSubheading }}
-        </p>
+  <Suspense>
+    <UiPageCenter stack-gap="6">
+      <LoginBrandHeader
+        :heading="COPY.loginHeading"
+        :subheading="COPY.loginSubheading"
+      />
+
+      <LoginSignInTabs
+        :model-value="mode"
+        :tabs-aria-label="COPY.signIn"
+        :demo-label="COPY.loginTabDemo"
+        :password-label="COPY.loginTabPassword"
+        :demo-test-id="TEST_IDS.loginTabDemo"
+        :password-test-id="TEST_IDS.loginTabPassword"
+        @update:model-value="setMode"
+      />
+
+      <div
+        v-if="mode === 'demo'"
+        id="login-panel-demo"
+        role="tabpanel"
+        aria-labelledby="login-tab-demo"
+        tabindex="0"
+      >
+        <LoginDemoSignIn
+          v-model:selected-user-id="selectedUserId"
+          :loading="loading"
+          :error="error"
+          :has-users="hasDemoUsers"
+          :user-options="userOptions"
+          :selected-user="selectedUser"
+          :submitting="submitting"
+          :badge-variant="badgeVariant"
+          @submit="handleSubmit"
+        />
       </div>
 
       <div
-        class="rounded-lg border border-slate-200 bg-white p-2 shadow-sm"
-        role="tablist"
-        :aria-label="COPY.signIn"
+        v-else
+        id="login-panel-password"
+        role="tabpanel"
+        aria-labelledby="login-tab-password"
+        tabindex="0"
       >
-        <div class="grid grid-cols-2 gap-1">
-          <button
-            type="button"
-            role="tab"
-            :aria-selected="mode === 'demo'"
-            :class="[
-              'rounded-md px-3 py-2 text-sm font-medium transition-colors',
-              mode === 'demo'
-                ? 'bg-brand-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-100',
-            ]"
-            :data-test="TEST_IDS.loginTabDemo"
-            @click="setMode('demo')"
-          >
-            {{ COPY.loginTabDemo }}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            :aria-selected="mode === 'password'"
-            :class="[
-              'rounded-md px-3 py-2 text-sm font-medium transition-colors',
-              mode === 'password'
-                ? 'bg-brand-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-100',
-            ]"
-            :data-test="TEST_IDS.loginTabPassword"
-            @click="setMode('password')"
-          >
-            {{ COPY.loginTabPassword }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Demo: pick a user -->
-      <template v-if="mode === 'demo'">
-        <div
-          v-if="loading"
-          class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500"
-        >
-          {{ COPY.loadingUsers }}
-        </div>
-
-        <!-- List fetch failed — nothing to pick yet -->
-        <div
-          v-else-if="availableUsers.length === 0 && error"
-          class="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"
-          role="alert"
-        >
-          {{ error }}
-        </div>
-
-        <div
-          v-else-if="availableUsers.length === 0"
-          class="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500"
-        >
-          {{ COPY.noUsersAvailable }}
-        </div>
-
-        <!-- Users loaded: keep selector usable even when a session/demo error exists -->
-        <div
-          v-else
-          class="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
-        >
-          <div
-            v-if="error"
-            class="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
-            role="alert"
-          >
-            {{ error }}
-          </div>
-          <form
-            :data-test="TEST_IDS.loginForm"
-            class="space-y-4"
-            @submit="handleSubmit"
-          >
-            <BaseSelect
-              v-model="selectedUserId"
-              :options="userOptions"
-              :label="COPY.signInAs"
-              :placeholder="COPY.selectAUser"
-              required
-              :data-test="TEST_IDS.userSelector"
-            />
-
-            <div
-              v-if="selectedUser"
-              class="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-sm"
-              :data-test-selected-email="selectedUser.email"
-            >
-              <div>
-                <p class="font-medium text-slate-900">{{ selectedUser.name }}</p>
-                <p class="text-xs text-slate-500">{{ selectedUser.email }}</p>
-              </div>
-              <BaseBadge :variant="badgeVariant(selectedUser.roleName)">
-                {{ selectedUser.roleName }}
-              </BaseBadge>
-            </div>
-
-            <BaseButton
-              variant="primary"
-              type="submit"
-              block
-              :loading="submitting"
-              :disabled="!selectedUserId"
-              :data-test="TEST_IDS.loginSubmit"
-            >
-              {{ COPY.signIn }}
-            </BaseButton>
-          </form>
-        </div>
-      </template>
-
-      <!-- Password: email + password (JWT) -->
-      <template v-else>
-        <form
-          class="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
-          :data-test="TEST_IDS.loginPasswordForm"
-          novalidate
+        <LoginPasswordSignIn
+          v-model:email="passwordEmail"
+          v-model:password="passwordPassword"
+          :errors="passwordErrors"
+          :submitting="passwordSubmitting"
+          :server-error="passwordError"
           @submit="handlePasswordSubmit"
-        >
-          <BaseInput
-            v-model="passwordEmail"
-            type="email"
-            :label="COPY.loginEmailLabel"
-            :placeholder="COPY.loginEmailPlaceholder"
-            :error="passwordErrors.email"
-            autocomplete="email"
-            required
-            :data-test="TEST_IDS.loginEmailInput"
-          />
-          <BaseInput
-            v-model="passwordPassword"
-            type="password"
-            :label="COPY.loginPasswordLabel"
-            :placeholder="COPY.loginPasswordPlaceholder"
-            :error="passwordErrors.password"
-            autocomplete="current-password"
-            required
-            :data-test="TEST_IDS.loginPasswordInput"
-          />
+        />
+      </div>
+    </UiPageCenter>
 
-          <p
-            v-if="passwordError"
-            class="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700"
-            role="alert"
-          >
-            {{ passwordError }}
-          </p>
-
-          <BaseButton
-            variant="primary"
-            type="submit"
-            block
-            :loading="passwordSubmitting"
-            :data-test="TEST_IDS.loginPasswordSubmit"
-          >
-            {{ COPY.signIn }}
-          </BaseButton>
-
-          <p class="text-center text-xs text-slate-500">
-            {{ COPY.loginSeedHint }}
-          </p>
-        </form>
-      </template>
-    </div>
-  </div>
+    <template #fallback>
+      <UiPageCenter stack-gap="6">
+        <UiSurface variant="elevated">
+          <UiText variant="sectionDescription">Loading sign-in experience...</UiText>
+        </UiSurface>
+      </UiPageCenter>
+    </template>
+  </Suspense>
 </template>
+

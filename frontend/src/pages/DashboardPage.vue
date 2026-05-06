@@ -2,6 +2,10 @@
 import AppLayout from '@/components/layout/AppLayout/AppLayout.vue';
 import BaseButton from '@/components/ui/BaseButton/BaseButton.vue';
 import PermissionGuard from '@/components/permission/PermissionGuard/PermissionGuard.vue';
+import UiSectionHeading from '@/components/ui/primitives/UiSectionHeading.vue';
+import UiStack from '@/components/ui/primitives/UiStack.vue';
+import UiSurface from '@/components/ui/primitives/UiSurface.vue';
+import UiText from '@/components/ui/primitives/UiText.vue';
 import UsersTable from '@/components/users/UsersTable/UsersTable.vue';
 import AddUserModal from '@/components/users/AddUserModal/AddUserModal.vue';
 import EditUserModal from '@/components/users/EditUserModal/EditUserModal.vue';
@@ -31,72 +35,61 @@ const {
 
 <template>
   <AppLayout :title="COPY.dashboardTitle" @logout="handleLogout">
-    <div class="space-y-10">
+    <UiStack gap="10">
       <section v-if="canViewUsers" :data-test="TEST_IDS.sectionUsers">
-        <header class="mb-4 flex items-center justify-between">
-          <div>
-            <h2 class="text-lg font-semibold text-slate-900">
-              {{ COPY.usersHeading }}
-            </h2>
-            <p class="text-sm text-slate-500">
-              {{ COPY.usersSubheading }}
-            </p>
-          </div>
-          <PermissionGuard action="create_user" mode="hide">
-            <BaseButton
-              variant="primary"
-              :data-test="TEST_IDS.addUserButton"
-              @click="showAddUser = true"
-            >
-              {{ COPY.addUser }}
-            </BaseButton>
-          </PermissionGuard>
-        </header>
+        <UiSectionHeading layout="split">
+          <template #title>
+            <UiText variant="sectionTitle">{{ COPY.usersHeading }}</UiText>
+          </template>
+          <template #description>
+            <UiText variant="sectionDescription">{{ COPY.usersSubheading }}</UiText>
+          </template>
+          <template #action>
+            <PermissionGuard action="create_user" mode="hide">
+              <BaseButton
+                variant="primary"
+                :data-test="TEST_IDS.addUserButton"
+                @click="showAddUser = true"
+              >
+                {{ COPY.addUser }}
+              </BaseButton>
+            </PermissionGuard>
+          </template>
+        </UiSectionHeading>
         <UsersTable
           :users="usersState.users.value"
           :loading="usersState.loading.value"
           @edit="(u) => (editingUser = u)"
           @delete="handleDeleteUser"
         />
-        <p
-          v-if="usersState.error.value"
-          class="mt-2 text-sm text-rose-600"
-          role="alert"
-        >
+        <UiText v-if="usersState.error.value" variant="errorMt" role="alert">
           {{ usersState.error.value }}
-        </p>
+        </UiText>
       </section>
 
       <section v-if="canViewRoles" :data-test="TEST_IDS.sectionRoles">
-        <header class="mb-4">
-          <h2 class="text-lg font-semibold text-slate-900">
-            {{ COPY.rolesHeading }}
-          </h2>
-          <p class="text-sm text-slate-500">
-            {{ COPY.rolesSubheading }}
-          </p>
-        </header>
+        <UiSectionHeading layout="stack">
+          <template #title>
+            <UiText variant="sectionTitle">{{ COPY.rolesHeading }}</UiText>
+          </template>
+          <template #description>
+            <UiText variant="sectionDescription">{{ COPY.rolesSubheading }}</UiText>
+          </template>
+        </UiSectionHeading>
         <RolesList
           :roles="rolesState.roles.value"
           :loading="rolesState.loading.value"
           @edit="(r) => (editingRole = r)"
         />
-        <p
-          v-if="rolesState.error.value"
-          class="mt-2 text-sm text-rose-600"
-          role="alert"
-        >
+        <UiText v-if="rolesState.error.value" variant="errorMt" role="alert">
           {{ rolesState.error.value }}
-        </p>
+        </UiText>
       </section>
 
-      <p
-        v-if="!canViewUsers && !canViewRoles"
-        class="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-500"
-      >
+      <UiSurface v-if="!canViewUsers && !canViewRoles" variant="notice">
         {{ COPY.noPermissionVisible }}
-      </p>
-    </div>
+      </UiSurface>
+    </UiStack>
 
     <AddUserModal
       :open="showAddUser"

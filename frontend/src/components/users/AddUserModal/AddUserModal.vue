@@ -3,6 +3,8 @@ import BaseButton from '../../ui/BaseButton/BaseButton.vue';
 import BaseInput from '../../ui/BaseInput/BaseInput.vue';
 import BaseModal from '../../ui/BaseModal/BaseModal.vue';
 import BaseSelect from '../../ui/BaseSelect/BaseSelect.vue';
+import UiFlex from '@/components/ui/primitives/UiFlex.vue';
+import UiStack from '@/components/ui/primitives/UiStack.vue';
 import { COPY } from '@/constants/messages';
 import { TEST_IDS } from '@/constants/test-ids';
 import type { Role } from '@/types/role.types';
@@ -41,49 +43,50 @@ const {
 <template>
   <BaseModal :open="open" :title="COPY.addUserTitle" @close="emit('close')">
     <form
-      class="space-y-4"
       :data-test="TEST_IDS.addUserForm"
       @submit="handleSubmit"
     >
-      <BaseInput
-        v-model="name"
-        :label="COPY.fieldName"
-        required
-        :error="errors.name"
-        autocomplete="off"
-        :data-test="TEST_IDS.addUserName"
-      />
-      <BaseInput
-        v-model="email"
-        type="email"
-        :label="COPY.fieldEmail"
-        required
-        :error="errors.email"
-        autocomplete="off"
-        :data-test="TEST_IDS.addUserEmail"
-      />
-      <BaseSelect
-        v-model="status"
-        :options="statusOptions"
-        :label="COPY.fieldStatus"
-        required
-      />
-      <BaseSelect
-        v-model="roleId"
-        :options="roleOptions"
-        :label="COPY.fieldRole"
-        :placeholder="COPY.pickARole"
-        required
-        :error="errors.roleId"
-      />
-      <div class="flex justify-end gap-2 pt-2">
-        <BaseButton variant="default" type="button" @click="emit('close')">
-          {{ COPY.cancel }}
-        </BaseButton>
-        <BaseButton variant="primary" type="submit" :loading="saving">
-          {{ COPY.createUser }}
-        </BaseButton>
-      </div>
+      <UiStack gap="4">
+        <BaseInput
+          v-model="name"
+          :label="COPY.fieldName"
+          required
+          :error="errors.name"
+          autocomplete="off"
+          :data-test="TEST_IDS.addUserName"
+        />
+        <BaseInput
+          v-model="email"
+          type="email"
+          :label="COPY.fieldEmail"
+          required
+          :error="errors.email"
+          autocomplete="off"
+          :data-test="TEST_IDS.addUserEmail"
+        />
+        <BaseSelect
+          v-model="status"
+          :options="statusOptions"
+          :label="COPY.fieldStatus"
+          required
+        />
+        <BaseSelect
+          v-model="roleId"
+          :options="roleOptions"
+          :label="COPY.fieldRole"
+          :placeholder="COPY.pickARole"
+          required
+          :error="errors.roleId"
+        />
+        <UiFlex variant="formActions">
+          <BaseButton variant="default" type="button" @click="emit('close')">
+            {{ COPY.cancel }}
+          </BaseButton>
+          <BaseButton variant="primary" type="submit" :loading="saving">
+            {{ COPY.createUser }}
+          </BaseButton>
+        </UiFlex>
+      </UiStack>
     </form>
   </BaseModal>
 </template>

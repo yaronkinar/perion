@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
 import { AuthService } from '../src/auth/auth.service';
+import { MESSAGES } from '../src/common/messages';
 import { Permission } from '../src/permissions/entities/permission.entity';
 import { Role } from '../src/roles/entities/role.entity';
 import { User } from '../src/users/entities/user.entity';
@@ -26,6 +27,27 @@ function makeQueryBuilder(getOneResult: User | null): QueryBuilderMock {
   qb.leftJoinAndSelect.mockReturnValue(qb);
   qb.where.mockReturnValue(qb);
   return qb;
+}
+
+function expectInvalidCredentials(err: unknown): void {
+  expect(err).toBeInstanceOf(UnauthorizedException);
+  const response = (err as UnauthorizedException).getResponse() as {
+    message?: string;
+  };
+  expect(response.message).toBe(MESSAGES.INVALID_CREDENTIALS);
+}
+
+async function expectLoginRejectsWithInvalidCredentials(
+  promise: Promise<unknown>,
+): Promise<void> {
+  let caught = false;
+  try {
+    await promise;
+  } catch (e) {
+    caught = true;
+    expectInvalidCredentials(e);
+  }
+  expect(caught).toBe(true);
 }
 
 const viewPermission: Permission = {
@@ -57,10 +79,12 @@ async function makeAdminUser(): Promise<User> {
 describe('AuthService.loginWithPassword', () => {
   let service: AuthService;
   let createQueryBuilder: jest.Mock;
+  let findOne: jest.Mock;
   let jwtService: { signAsync: jest.Mock };
 
   beforeEach(async () => {
     createQueryBuilder = jest.fn();
+    findOne = jest.fn();
     jwtService = { signAsync: jest.fn().mockResolvedValue('signed.jwt.value') };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -68,7 +92,7 @@ describe('AuthService.loginWithPassword', () => {
         AuthService,
         {
           provide: getRepositoryToken(User),
-          useValue: { createQueryBuilder, find: jest.fn(), findOne: jest.fn() },
+          useValue: { createQueryBuilder, find: jest.fn(), findOne },
         },
         { provide: JwtService, useValue: jwtService },
       ],
@@ -80,6 +104,7 @@ describe('AuthService.loginWithPassword', () => {
   it('returns a token + user on valid credentials', async () => {
     const user = await makeAdminUser();
     createQueryBuilder.mockReturnValue(makeQueryBuilder(user));
+    findOne.mockResolvedValue(user);
 
     const result = await service.loginWithPassword(user.email, PASSWORD);
 
@@ -94,32 +119,49 @@ describe('AuthService.loginWithPassword', () => {
         permissions: ['view_users'],
       }),
     );
+    expect(findOne).toHaveBeenCalledWith({
+      where: { id: user.id },
+      relations: { role: { permissions: true } },
+    });
   });
 
   it('rejects unknown emails with InvalidCredentials (no enumeration)', async () => {
     createQueryBuilder.mockReturnValue(makeQueryBuilder(null));
-    await expect(
+    await expectLoginRejectsWithInvalidCredentials(
       service.loginWithPassword('nobody@test.com', PASSWORD),
-    ).rejects.toBeInstanceOf(UnauthorizedException);
+    );
     expect(jwtService.signAsync).not.toHaveBeenCalled();
+    expect(findOne).not.toHaveBeenCalled();
   });
 
   it('rejects wrong password with InvalidCredentials', async () => {
     const user = await makeAdminUser();
     createQueryBuilder.mockReturnValue(makeQueryBuilder(user));
-    await expect(
+    await expectLoginRejectsWithInvalidCredentials(
       service.loginWithPassword(user.email, 'wrong-password'),
-    ).rejects.toBeInstanceOf(UnauthorizedException);
+    );
     expect(jwtService.signAsync).not.toHaveBeenCalled();
+    expect(findOne).not.toHaveBeenCalled();
   });
 
   it('rejects users with no password hash with InvalidCredentials', async () => {
     const user = await makeAdminUser();
     user.passwordHash = null;
     createQueryBuilder.mockReturnValue(makeQueryBuilder(user));
-    await expect(
+    await expectLoginRejectsWithInvalidCredentials(
       service.loginWithPassword(user.email, PASSWORD),
-    ).rejects.toBeInstanceOf(UnauthorizedException);
+    );
+    expect(jwtService.signAsync).not.toHaveBeenCalled();
+    expect(findOne).not.toHaveBeenCalled();
+  });
+
+  it('rejects when the full user row disappeared after credential check', async () => {
+    const user = await makeAdminUser();
+    createQueryBuilder.mockReturnValue(makeQueryBuilder(user));
+    findOne.mockResolvedValue(null);
+    await expectLoginRejectsWithInvalidCredentials(
+      service.loginWithPassword(user.email, PASSWORD),
+    );
     expect(jwtService.signAsync).not.toHaveBeenCalled();
   });
 });

@@ -36,4 +36,21 @@ describe('BaseInput', () => {
     });
     expect(wrapper.get('input').attributes('disabled')).toBeDefined();
   });
+
+  it('shows a visibility toggle for password when showPasswordToggle is set', async () => {
+    const wrapper = mount(BaseInput, {
+      props: {
+        modelValue: 'secret',
+        type: 'password',
+        showPasswordToggle: true,
+      },
+    });
+    const input = wrapper.get('input');
+    expect(input.attributes('type')).toBe('password');
+    const btn = wrapper.get('button[type="button"]');
+    await btn.trigger('click');
+    expect(wrapper.get('input').attributes('type')).toBe('text');
+    await btn.trigger('click');
+    expect(wrapper.get('input').attributes('type')).toBe('password');
+  });
 });

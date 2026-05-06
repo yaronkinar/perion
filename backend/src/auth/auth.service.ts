@@ -74,18 +74,29 @@ export class AuthService {
 
   async loginWithPassword(email: string, password: string): Promise<LoginResult> {
     // `passwordHash` is `select: false` on the entity, so we must opt in.
-    const user = await this.usersRepository
+    // Load credentials only via QueryBuilder (no relation joins): mixing
+    // QueryBuilder joins with `eager: true` on `User.role` can hydrate an
+    // incomplete `role`/`permissions` graph and break `toSessionUser`.
+    const forCredentialCheck = await this.usersRepository
       .createQueryBuilder('u')
       .addSelect('u.passwordHash')
-      .leftJoinAndSelect('u.role', 'role')
-      .leftJoinAndSelect('role.permissions', 'permission')
       .where('u.email = :email', { email })
       .getOne();
 
     // Single message + always run bcrypt to dampen email-enumeration timing.
-    const hash = user?.passwordHash ?? '$2b$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvali';
+    const hash =
+      forCredentialCheck?.passwordHash ??
+      '$2b$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvali';
     const matches = await bcrypt.compare(password, hash);
-    if (!user || !user.passwordHash || !matches) {
+    if (!forCredentialCheck?.passwordHash || !matches) {
+      throw new UnauthorizedException(MESSAGES.INVALID_CREDENTIALS);
+    }
+
+    const user = await this.usersRepository.findOne({
+      where: { id: forCredentialCheck.id },
+      relations: { role: { permissions: true } },
+    });
+    if (!user) {
       throw new UnauthorizedException(MESSAGES.INVALID_CREDENTIALS);
     }
 
@@ -141,7 +152,7 @@ export class AuthService {
       status: user.status,
       roleId: user.role.id,
       roleName: user.role.name,
-      permissions: user.role.permissions.map(
+      permissions: (user.role.permissions ?? []).map(
         (permission) => permission.name as PermissionAction,
       ),
     };

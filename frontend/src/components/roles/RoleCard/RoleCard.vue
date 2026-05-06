@@ -3,6 +3,9 @@ import BaseBadge from '../../ui/BaseBadge/BaseBadge.vue';
 import BaseButton from '../../ui/BaseButton/BaseButton.vue';
 import PermissionBadge from '../../permission/PermissionBadge/PermissionBadge.vue';
 import PermissionGuard from '../../permission/PermissionGuard/PermissionGuard.vue';
+import UiFlex from '@/components/ui/primitives/UiFlex.vue';
+import UiSurface from '@/components/ui/primitives/UiSurface.vue';
+import UiText from '@/components/ui/primitives/UiText.vue';
 import { COPY } from '@/constants/messages';
 import { TEST_IDS } from '@/constants/test-ids';
 import { useRoleCard } from './useRoleCard';
@@ -22,18 +25,14 @@ const { variant, permissionsLabel } = useRoleCard(props);
 </script>
 
 <template>
-  <article
-    class="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
-  >
-    <header class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
+  <UiSurface variant="roleCard" as="article">
+    <UiFlex variant="contentBetween">
+      <UiFlex variant="itemsStart">
         <BaseBadge :variant="variant" size="md">
           {{ role.name }}
         </BaseBadge>
-        <span class="text-xs text-slate-500">
-          {{ permissionsLabel }}
-        </span>
-      </div>
+        <UiText variant="mutedXs" as="span">{{ permissionsLabel }}</UiText>
+      </UiFlex>
       <PermissionGuard action="edit_roles" mode="disable">
         <BaseButton
           size="sm"
@@ -44,13 +43,13 @@ const { variant, permissionsLabel } = useRoleCard(props);
           {{ COPY.editRole }}
         </BaseButton>
       </PermissionGuard>
-    </header>
+    </UiFlex>
 
-    <ul v-if="role.permissions.length > 0" class="flex flex-wrap gap-2">
+    <UiFlex v-if="role.permissions.length > 0" variant="chipWrap" as="ul">
       <li v-for="permission in role.permissions" :key="permission.id">
         <PermissionBadge :action="permission.name" />
       </li>
-    </ul>
-    <p v-else class="text-sm text-slate-500">{{ COPY.noPermissionsAssigned }}</p>
-  </article>
+    </UiFlex>
+    <UiText v-else variant="rolesEmpty">{{ COPY.noPermissionsAssigned }}</UiText>
+  </UiSurface>
 </template>

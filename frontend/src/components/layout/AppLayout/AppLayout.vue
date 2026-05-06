@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppHeader from '../AppHeader/AppHeader.vue';
+import UiAppShell from '@/components/ui/primitives/UiAppShell.vue';
 
 defineProps<{ title?: string }>();
 
@@ -9,10 +10,10 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="flex min-h-full flex-col">
-    <AppHeader :title="title" @logout="$emit('logout')" />
-    <main class="mx-auto w-full max-w-6xl flex-1 p-6">
-      <slot />
-    </main>
-  </div>
+  <UiAppShell>
+    <template #header>
+      <AppHeader :title="title" @logout="$emit('logout')" />
+    </template>
+    <slot />
+  </UiAppShell>
 </template>
