@@ -9,6 +9,7 @@
     "preview": "vite preview --port 3000",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:report": "vitest run --reporter=json --outputFile=./test-report.json",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "e2e": "playwright test",

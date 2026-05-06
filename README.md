@@ -18,6 +18,12 @@ Repo: <https://github.com/yaronkinar/perion>
 docker compose up --build
 ```
 
+If your Docker installation uses the legacy command form, this is equivalent:
+
+```bash
+docker-compose up --build
+```
+
 - App: http://localhost:3000
 - API: http://localhost:4000/api
 - Postgres: localhost:5432 (perion / secret / perion_rbac)
@@ -89,6 +95,15 @@ npm run dev
 ```
 
 Vite dev server is on http://localhost:3000 and proxies `/api` to the backend.
+
+### Storybook
+
+```bash
+cd frontend
+npm run storybook
+```
+
+Storybook runs at http://localhost:6006.
 
 ### Required environment variables
 
@@ -194,6 +209,27 @@ cd frontend && npm test
 # Playwright (needs the app + backend running locally)
 cd frontend && npm run e2e
 ```
+
+### Test reports (backend + frontend)
+
+```bash
+# backend: JSON test report
+cd backend
+npm test -- --json --outputFile=./test-report.json
+
+# backend: coverage report (text + HTML)
+npm run test:cov
+# opens at backend/coverage/lcov-report/index.html
+
+# frontend: JSON test report
+cd ../frontend
+npm test -- --reporter=json --outputFile=./test-report.json
+```
+
+Report artifacts:
+- `backend/test-report.json`
+- `backend/coverage/lcov-report/index.html`
+- `frontend/test-report.json`
 
 ## Project layout
 

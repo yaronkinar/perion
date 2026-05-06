@@ -8,7 +8,9 @@ export default defineConfig({
   expect: { timeout: 5_000 },
   fullyParallel: false,
   retries: 0,
-  reporter: [['list']],
+  reporter: process.env.CI
+    ? [['list'], ['json', { outputFile: 'playwright-report.json' }]]
+    : [['list']],
   use: {
     baseURL,
     headless: true,
