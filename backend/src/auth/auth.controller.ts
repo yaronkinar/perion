@@ -8,8 +8,10 @@ import {
   Post,
   Req,
   Res,
+  UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import {
   AUTH_ENDPOINTS,
@@ -51,6 +53,7 @@ export class AuthController {
   }
 
   @Post(AUTH_ENDPOINTS.LOGIN)
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() dto: LoginDto,

@@ -29,13 +29,15 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://perion:secret@postgres:5432/perion_rbac
-      # NODE_ENV=development keeps the demo "pick a user" flow enabled and
-      # turns on TypeORM synchronize so the schema is created on first boot.
-      NODE_ENV: development
+      # Defaults to production so demo-only auth endpoints are disabled.
+      # Set BACKEND_NODE_ENV=development for local demos that use pick-a-user.
+      NODE_ENV: ${BACKEND_NODE_ENV:-production}
       PORT: "4000"
       CORS_ORIGIN: http://localhost:3000
       SESSION_SECRET: dev-session-secret-needs-32-chars-minimum
       JWT_SECRET: dev-jwt-secret-also-needs-32-chars-minimum
+      AUTH_LOGIN_RATE_LIMIT: "5"
+      AUTH_LOGIN_RATE_TTL_MS: "60000"
 
   frontend:
     build:

@@ -30,7 +30,7 @@ export interface UseEditUserModalReturn {
   email: Ref<string>;
   status: Ref<UserStatus>;
   roleId: Ref<string | null>;
-  errors: Ref<Partial<Record<FieldKey, string>>>;
+  errors: ComputedRef<Partial<Record<FieldKey, string>>>;
   canChangeRole: ComputedRef<boolean>;
   roleOptions: ComputedRef<SelectOption<string>[]>;
   statusOptions: SelectOption<UserStatus>[];
@@ -61,7 +61,14 @@ export function useEditUserModal(
   const { value: status } = useField<UserStatus>('status');
   const { value: roleId } = useField<string | null>('roleId');
 
-  const errors = form.errors as Ref<Partial<Record<FieldKey, string>>>;
+  const errors = computed<Partial<Record<FieldKey, string>>>(() => {
+    const typedErrors: Partial<Record<FieldKey, string>> = {};
+    for (const key of FIELD_KEYS) {
+      const message = form.errors.value[key];
+      if (message) typedErrors[key] = message;
+    }
+    return typedErrors;
+  });
 
   const { can } = usePermission();
   const canChangeRole = computed<boolean>(() => can('change_role'));
@@ -93,14 +100,14 @@ export function useEditUserModal(
   );
 
   watch(
-    () => props.serverErrors ?? {},
-    (incoming) => {
+    () => FIELD_KEYS.map((key) => props.serverErrors?.[key] ?? '').join('\u0000'),
+    () => {
+      const incoming = props.serverErrors ?? {};
       for (const key of FIELD_KEYS) {
         const message = incoming[key];
         if (message) form.setFieldError(key, message);
       }
     },
-    { deep: true },
   );
 
   const handleSubmit = form.handleSubmit((values) => {

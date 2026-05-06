@@ -1,8 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ThrottlerModule } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { AuthController } from '../src/auth/auth.controller';
 import { AuthService } from '../src/auth/auth.service';
-import { JWT_COOKIE_NAME } from '../src/common/constants';
+import {
+  DEFAULT_AUTH_LOGIN_RATE_LIMIT,
+  DEFAULT_AUTH_LOGIN_RATE_TTL_MS,
+  JWT_COOKIE_NAME,
+} from '../src/common/constants';
 import type { LoginResult } from '../src/auth/auth.service';
 import type { SessionUser } from '../src/auth/session.types';
 
@@ -31,6 +36,14 @@ describe('AuthController.login', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ThrottlerModule.forRoot([
+          {
+            ttl: DEFAULT_AUTH_LOGIN_RATE_TTL_MS,
+            limit: DEFAULT_AUTH_LOGIN_RATE_LIMIT,
+          },
+        ]),
+      ],
       controllers: [AuthController],
       providers: [{ provide: AuthService, useValue: authService }],
     }).compile();

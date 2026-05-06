@@ -9,7 +9,11 @@ import {
 } from '../permissions/entities/permission.entity';
 import { Role, RoleName } from '../roles/entities/role.entity';
 import { USER_STATUS_ACTIVE, User } from '../users/entities/user.entity';
-import { PERMISSIONS_BY_ROLE, ROLE_NAMES } from '../common/constants';
+import {
+  DEFAULT_BCRYPT_ROUNDS,
+  PERMISSIONS_BY_ROLE,
+  ROLE_NAMES,
+} from '../common/constants';
 import { LOG_MESSAGES } from '../common/messages';
 
 interface RoleSeed {
@@ -35,7 +39,6 @@ const USER_SEEDS: UserSeed[] = [
 ];
 
 const DEFAULT_SEED_PASSWORD = 'Password123!';
-const BCRYPT_ROUNDS = 10;
 
 @Injectable()
 export class SeedService implements OnModuleInit {
@@ -147,18 +150,24 @@ export class SeedService implements OnModuleInit {
   private async seedUserPasswords(): Promise<void> {
     // Backfill bcrypt hashes for any seeded user that doesn't have one yet.
     // Only the predefined seed emails are touched, never user-created accounts.
-    for (const seed of USER_SEEDS) {
-      const user = await this.usersRepository
-        .createQueryBuilder('u')
-        .addSelect('u.passwordHash')
-        .where('u.email = :email', { email: seed.email })
-        .getOne();
-      if (!user) continue;
-      if (user.passwordHash) continue;
+    const seedEmails = USER_SEEDS.map((seed) => seed.email);
+    const seededUsers = await this.usersRepository
+      .createQueryBuilder('u')
+      .addSelect('u.passwordHash')
+      .where('u.email IN (:...emails)', { emails: seedEmails })
+      .getMany();
 
-      user.passwordHash = await bcrypt.hash(DEFAULT_SEED_PASSWORD, BCRYPT_ROUNDS);
-      await this.usersRepository.save(user);
-      this.logger.log(LOG_MESSAGES.seededUserPassword(seed.email));
-    }
+    const usersNeedingPassword = seededUsers.filter((user) => !user.passwordHash);
+
+    await Promise.all(
+      usersNeedingPassword.map(async (user) => {
+        user.passwordHash = await bcrypt.hash(
+          DEFAULT_SEED_PASSWORD,
+          DEFAULT_BCRYPT_ROUNDS,
+        );
+        await this.usersRepository.save(user);
+        this.logger.log(LOG_MESSAGES.seededUserPassword(user.email));
+      }),
+    );
   }
 }

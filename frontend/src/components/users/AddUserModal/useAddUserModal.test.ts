@@ -122,7 +122,7 @@ describe('useAddUserModal (VeeValidate + Zod)', () => {
 
     expect(h.result.name.value).toBe('');
     expect(h.result.email.value).toBe('');
-    expect(h.result.roleId.value).toBeNull();
+    expect(h.result.roleId.value).toBe('');
   });
 });
 

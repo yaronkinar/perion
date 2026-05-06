@@ -30,6 +30,17 @@ docker-compose up --build
 
 The backend seeds the database on first boot. This stack runs the **production-style build** (Nginx serving the built Vite bundle, Nest from compiled JS) — for the assignment's `docker compose up` deliverable.
 
+By default, this stack also runs the backend with `NODE_ENV=production` (via `BACKEND_NODE_ENV`), so demo-only endpoints are gated:
+
+- `GET /api/auth/users` returns `403`
+- `POST /api/auth/select` returns `403`
+
+If you specifically want the pick-a-user demo flow in this stack, run:
+
+```bash
+BACKEND_NODE_ENV=development docker compose up --build
+```
+
 ### Local development with Docker (hot reload)
 
 ```bash
@@ -115,6 +126,8 @@ Storybook runs at http://localhost:6006.
 | `CORS_ORIGIN`     | Allowed CORS origin (the frontend URL)               | optional (defaults `http://localhost:3000`) |
 | `JWT_TTL`         | JWT lifetime, e.g. `1h`, `30m`                       | optional (default `1h`) |
 | `NODE_ENV`        | `development` enables the demo "pick a user" flow    | optional (default dev) |
+| `AUTH_LOGIN_RATE_LIMIT` | Max login attempts per window for `POST /api/auth/login` | optional (default `5`) |
+| `AUTH_LOGIN_RATE_TTL_MS` | Login throttle window in milliseconds                    | optional (default `60000`) |
 | `PORT`            | Backend port                                         | optional (default 4000) |
 
 In production (`NODE_ENV=production`):
@@ -141,7 +154,7 @@ Route-level enforcement: routes can declare `meta.requireAny: PermissionAction[]
 
 - **Form validation: VeeValidate + Zod (frontend), class-validator (backend).** Frontend forms (`AddUserModal`, `EditUserModal`) use [`useForm` + `toTypedSchema(zodSchema)`](frontend/src/components/users/AddUserModal/useAddUserModal.ts), with schemas declared in [`frontend/src/schemas/user.schema.ts`](frontend/src/schemas/user.schema.ts). Backend keeps `class-validator` because it's NestJS-idiomatic and `HttpExceptionFilter` already surfaces its arrays as `errors[]` over the wire. The frontend's `extractFieldErrors` helper maps that array onto VeeValidate's `setFieldError`, so server-side rules (e.g. `Email already in use`) light up the same red-text UI as client-side rules. If we ever need a single source of truth, the Zod schemas can be lifted into a shared workspace and consumed on the backend via `nestjs-zod` without rewriting the rules.
 - **Permission source of truth.** A single `PermissionAction` union lives in `backend/src/permissions/entities/permission.entity.ts` and `frontend/src/types/permission.types.ts`. Roles map to permissions via a typed `PERMISSIONS_BY_ROLE` matrix.
-- **Session = snapshot.** On login the user's permissions are snapshotted into the session cookie. `PermissionsGuard` reads from the session, which is fast and avoids a per-request DB hit. `GET /api/auth/me` re-reads from DB so a permission update flushes through the next time the client refreshes.
+- **Session = snapshot.** On login the user's permissions are snapshotted into the session cookie. `PermissionsGuard` reads from the session, which is fast and avoids a per-request DB hit. If a role's permissions change while a user is logged in, existing requests keep using the old snapshot until the session is refreshed (`GET /api/auth/me`) or the user logs in again.
 - **Default-deny guard.** `PermissionsGuard` requires `@RequirePermission(...)` metadata on every guarded handler. A handler with no metadata throws `Forbidden`, so adding a route without thinking about permissions can never silently pass.
 - **Unified envelope.** A global `TransformInterceptor` wraps successful responses as `{ data, message, statusCode }`; a global `HttpExceptionFilter` does the same for errors and additionally surfaces `class-validator` arrays as `errors: string[]` for per-field UI mapping. Unknown errors are logged server-side and masked as a generic 500 (no message leak).
 - **204 stays 204.** The interceptor short-circuits empty bodies on `DELETE` so we don't violate HTTP semantics.
@@ -168,11 +181,17 @@ Route-level enforcement: routes can declare `meta.requireAny: PermissionAction[]
 
 | Method | Path                | Body                       | Notes                                                   |
 | ------ | ------------------- | -------------------------- | ------------------------------------------------------- |
-| POST   | `/api/auth/login`   | `{ email, password }`      | Returns `{ token, user }`; sets `perion.jwt` httpOnly cookie |
+| POST   | `/api/auth/login`   | `{ email, password }`      | Returns `{ token, user }`; sets `perion.jwt` httpOnly cookie; rate-limited (429 on excess) |
 
 A successful `POST /api/auth/login` returns the JWT, sets the `perion.jwt` httpOnly cookie, **and** seeds `req.session.user` so the existing session-cookie-based guards (PermissionsGuard, `/auth/me`) recognize the authenticated user without any further integration. Bearer-token clients can use the returned `token` directly.
 
 Every response is wrapped as `{ data, message, statusCode }` (with optional `errors[]` on validation failures) by the `TransformInterceptor` and `HttpExceptionFilter`.
+
+## Security notes
+
+- `POST /api/auth/login` is now protected by endpoint-level throttling using Nest's `ThrottlerGuard` (`5` attempts per `60s` by default). Limits are configurable via `AUTH_LOGIN_RATE_LIMIT` and `AUTH_LOGIN_RATE_TTL_MS`.
+- The throttler is intentionally bound only to the login route, so normal authenticated app traffic and demo endpoints are unaffected.
+- For internet-exposed production systems, keep this throttle and add layered controls (WAF/IP reputation, suspicious activity monitoring, and optional account lockout/backoff policy).
 
 ## Tests
 

@@ -1,4 +1,5 @@
 export type PermissionAction =
+  // Keep in sync with `backend/src/permissions/entities/permission.entity.ts`.
   | 'view_users'
   | 'create_user'
   | 'edit_user'

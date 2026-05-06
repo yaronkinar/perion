@@ -44,7 +44,7 @@ export const updateUserSchema = z.object({
   name: trimmedRequiredString(VALIDATION_MESSAGES.nameRequired),
   email: requiredEmail(),
   status: userStatusSchema,
-  roleId: requiredRoleId().or(z.null()).optional(),
+  roleId: requiredRoleId().nullable(),
 });
 
 export type CreateUserFormValues = z.infer<typeof createUserSchema>;

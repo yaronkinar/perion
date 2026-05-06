@@ -3,33 +3,29 @@ import { useField, useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import type { SelectOption } from '../../ui/BaseSelect/BaseSelect.types';
 import { COPY } from '@/constants/messages';
-import { createUserSchema } from '@/schemas/user.schema';
+import {
+  createUserSchema,
+  type CreateUserFormValues,
+} from '@/schemas/user.schema';
 import type { Role } from '@/types/role.types';
 import type { CreateUserDto, UserStatus } from '@/types/user.types';
 
 const FIELD_KEYS = ['name', 'email', 'status', 'roleId'] as const;
 type FieldKey = (typeof FIELD_KEYS)[number];
 
-interface AddUserFormValues {
-  name: string;
-  email: string;
-  status: UserStatus;
-  roleId: string | null;
-}
-
-const initialValues = (): AddUserFormValues => ({
+const initialValues = (): CreateUserFormValues => ({
   name: '',
   email: '',
   status: 'active',
-  roleId: null,
+  roleId: '',
 });
 
 export interface UseAddUserModalReturn {
   name: Ref<string>;
   email: Ref<string>;
   status: Ref<UserStatus>;
-  roleId: Ref<string | null>;
-  errors: Ref<Partial<Record<FieldKey, string>>>;
+  roleId: Ref<string>;
+  errors: ComputedRef<Partial<Record<FieldKey, string>>>;
   roleOptions: ComputedRef<SelectOption<string>[]>;
   statusOptions: SelectOption<UserStatus>[];
   handleSubmit: (event?: Event) => Promise<unknown>;
@@ -48,7 +44,7 @@ export function useAddUserModal(
 ): UseAddUserModalReturn {
   const validationSchema = toTypedSchema(createUserSchema);
 
-  const form = useForm<AddUserFormValues>({
+  const form = useForm<CreateUserFormValues>({
     validationSchema,
     initialValues: initialValues(),
   });
@@ -56,9 +52,16 @@ export function useAddUserModal(
   const { value: name } = useField<string>('name');
   const { value: email } = useField<string>('email');
   const { value: status } = useField<UserStatus>('status');
-  const { value: roleId } = useField<string | null>('roleId');
+  const { value: roleId } = useField<string>('roleId');
 
-  const errors = form.errors as Ref<Partial<Record<FieldKey, string>>>;
+  const errors = computed<Partial<Record<FieldKey, string>>>(() => {
+    const typedErrors: Partial<Record<FieldKey, string>> = {};
+    for (const key of FIELD_KEYS) {
+      const message = form.errors.value[key];
+      if (message) typedErrors[key] = message;
+    }
+    return typedErrors;
+  });
 
   const roleOptions = computed<SelectOption<string>[]>(() =>
     props.roles.map((role) => ({ label: role.name, value: role.id })),
@@ -80,19 +83,17 @@ export function useAddUserModal(
 
   // Surface backend validation hints onto the matching VeeValidate fields.
   watch(
-    () => props.serverErrors ?? {},
-    (incoming) => {
+    () => FIELD_KEYS.map((key) => props.serverErrors?.[key] ?? '').join('\u0000'),
+    () => {
+      const incoming = props.serverErrors ?? {};
       for (const key of FIELD_KEYS) {
         const message = incoming[key];
         if (message) form.setFieldError(key, message);
       }
     },
-    { deep: true },
   );
 
   const handleSubmit = form.handleSubmit((values) => {
-    // Validation guarantees roleId is a non-null UUID at this point.
-    if (!values.roleId) return;
     const dto: CreateUserDto = {
       name: values.name,
       email: values.email,
