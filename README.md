@@ -34,6 +34,11 @@ The backend seeds the database on first boot.
 
 Passwords are stored as bcrypt hashes (see [seed.service.ts](backend/src/seed/seed.service.ts)). The session-based "pick a user" demo flow requires no password and is **only enabled when `NODE_ENV !== 'production'`**.
 
+The login screen exposes both flows side-by-side via tabs:
+
+- **Demo user** — pick a seeded user from the dropdown (no password). Hidden when the demo endpoint is gated.
+- **Email & password** — sign in with the seeded credentials above against `POST /api/auth/login`. The login also seeds the session, so existing protected routes work without separate JWT integration. The JWT itself is returned in the response and as an httpOnly cookie (`perion.jwt`) for clients that want a Bearer token.
+
 ## Local development (no Docker)
 
 Two terminals.
@@ -128,7 +133,7 @@ Route-level enforcement: routes can declare `meta.requireAny: PermissionAction[]
 | ------ | ------------------- | -------------------------- | ------------------------------------------------------- |
 | POST   | `/api/auth/login`   | `{ email, password }`      | Returns `{ token, user }`; sets `perion.jwt` httpOnly cookie |
 
-The JWT login endpoint is fully working but the existing protected routes still consume the session cookie — JWT is provided as a bonus surface, not a replacement.
+A successful `POST /api/auth/login` returns the JWT, sets the `perion.jwt` httpOnly cookie, **and** seeds `req.session.user` so the existing session-cookie-based guards (PermissionsGuard, `/auth/me`) recognize the authenticated user without any further integration. Bearer-token clients can use the returned `token` directly.
 
 Every response is wrapped as `{ data, message, statusCode }` (with optional `errors[]` on validation failures) by the `TransformInterceptor` and `HttpExceptionFilter`.
 
