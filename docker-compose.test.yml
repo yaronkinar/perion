@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: perion
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: perion_rbac
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U perion -d perion_rbac"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    profiles: ["e2e"]
+
+  backend-unit:
+    build:
+      context: ./backend
+      target: test
+    profiles: ["unit"]
+
+  frontend-unit:
+    build:
+      context: ./frontend
+      target: test
+    profiles: ["unit"]
+
+  backend:
+    build:
+      context: ./backend
+      target: test
+    command: ["sh", "-lc", "npm run build && node dist/main.js"]
+    environment:
+      DATABASE_URL: postgresql://perion:secret@postgres:5432/perion_rbac
+      SESSION_SECRET: docker-test-session-secret-needs-32-chars
+      JWT_SECRET: docker-test-jwt-secret-also-needs-32-chars
+      CORS_ORIGIN: http://frontend:3000
+      NODE_ENV: development
+      PORT: "4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:4000/api/auth/users"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    profiles: ["e2e"]
+
+  frontend:
+    build:
+      context: ./frontend
+      target: test
+    command: ["npx", "vite", "--host", "--port", "3000"]
+    environment:
+      VITE_API_TARGET: http://backend:4000
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:3000"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    profiles: ["e2e"]
+
+  e2e:
+    build:
+      context: ./frontend
+      target: e2e
+    environment:
+      E2E_BASE_URL: http://frontend:3000
+      E2E_NO_WEBSERVER: "1"
+    depends_on:
+      frontend:
+        condition: service_healthy
+    profiles: ["e2e"]

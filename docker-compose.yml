@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: perion_rbac
+      POSTGRES_USER: perion
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U perion -d perion_rbac"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://perion:secret@postgres:5432/perion_rbac
+      # NODE_ENV=development keeps the demo "pick a user" flow enabled and
+      # turns on TypeORM synchronize so the schema is created on first boot.
+      NODE_ENV: development
+      PORT: "4000"
+      CORS_ORIGIN: http://localhost:3000
+      SESSION_SECRET: dev-session-secret-needs-32-chars-minimum
+      JWT_SECRET: dev-jwt-secret-also-needs-32-chars-minimum
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: runtime
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

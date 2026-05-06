@@ -1,0 +1,26 @@
+export const TEST_IDS = {
+  loginForm: 'login-form',
+  userSelector: 'user-selector',
+  loginSubmit: 'login-submit',
+  logoutButton: 'logout-button',
+  currentUserName: 'current-user-name',
+  currentUserRole: 'current-user-role',
+  toastInfo: 'toast-info',
+  toastSuccess: 'toast-success',
+  toastError: 'toast-error',
+  sectionUsers: 'section-users',
+  sectionRoles: 'section-roles',
+  addUserButton: 'add-user-button',
+  editUser: 'edit-user',
+  deleteUser: 'delete-user',
+  editRole: 'edit-role',
+  editRoleForm: 'edit-role-form',
+  permissionList: 'permission-list',
+  addUserForm: 'add-user-form',
+  addUserName: 'add-user-name',
+  addUserEmail: 'add-user-email',
+  editUserForm: 'edit-user-form',
+  usersTable: 'users-table',
+} as const;
+
+export type TestId = (typeof TEST_IDS)[keyof typeof TEST_IDS];

@@ -1,0 +1,22 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
+import { getDatabaseConfig } from './config/database.config';
+import { PermissionsModule } from './permissions/permissions.module';
+import { RolesModule } from './roles/roles.module';
+import { SeedModule } from './seed/seed.module';
+import { UsersModule } from './users/users.module';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRootAsync({
+      useFactory: () => getDatabaseConfig(),
+    }),
+    PermissionsModule,
+    RolesModule,
+    UsersModule,
+    AuthModule,
+    SeedModule,
+  ],
+})
+export class AppModule {}

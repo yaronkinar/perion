@@ -1,0 +1,179 @@
+# Perion RBAC
+
+A production-quality permission-based UI management system.
+
+- **Frontend:** Vue 3 + TypeScript + Vite + Pinia + Vue Router + Tailwind + Storybook 8 + Playwright
+- **Backend:** NestJS + TypeORM + PostgreSQL + Jest
+- **Auth:** Session-based (cookie) "pick a user" demo flow + bonus JWT email/password endpoint
+- **Containerization:** Docker Compose for app + tests
+- **CI:** GitHub Actions running the same containers used locally
+
+[![ci](https://github.com/yaronkinar/perion/actions/workflows/ci.yml/badge.svg)](https://github.com/yaronkinar/perion/actions/workflows/ci.yml)
+
+Repo: <https://github.com/yaronkinar/perion>
+
+## Quick start
+
+```bash
+docker compose up --build
+```
+
+- App: http://localhost:3000
+- API: http://localhost:4000/api
+- Postgres: localhost:5432 (perion / secret / perion_rbac)
+
+The backend seeds the database on first boot.
+
+## Test credentials
+
+| Name        | Email             | Role   | Password (for `POST /api/auth/login`) |
+| ----------- | ----------------- | ------ | ------------------------------------- |
+| Admin User  | admin@test.com    | Admin  | `Password123!`                        |
+| Editor User | editor@test.com   | Editor | `Password123!`                        |
+| Viewer User | viewer@test.com   | Viewer | `Password123!`                        |
+
+Passwords are stored as bcrypt hashes (see [seed.service.ts](backend/src/seed/seed.service.ts)). The session-based "pick a user" demo flow requires no password and is **only enabled when `NODE_ENV !== 'production'`**.
+
+## Local development (no Docker)
+
+Two terminals.
+
+```bash
+# 1. Postgres
+docker compose up postgres
+```
+
+```bash
+# 2. Backend
+cd backend
+npm install
+DATABASE_URL=postgresql://perion:secret@localhost:5432/perion_rbac \
+SESSION_SECRET=dev-session-secret-needs-32-chars-minimum \
+JWT_SECRET=dev-jwt-secret-also-needs-32-chars-minimum \
+CORS_ORIGIN=http://localhost:3000 \
+npm run start:dev
+```
+
+```bash
+# 3. Frontend
+cd frontend
+npm install
+npm run dev
+```
+
+Vite dev server is on http://localhost:3000 and proxies `/api` to the backend.
+
+### Required environment variables
+
+| Var               | Description                                          | Required where        |
+| ----------------- | ---------------------------------------------------- | --------------------- |
+| `DATABASE_URL`    | Postgres connection string                           | always                |
+| `SESSION_SECRET`  | Secret for `express-session` cookie signing         | always; ≥32 chars in prod |
+| `JWT_SECRET`      | HMAC secret for JWT signing                          | always; ≥32 chars in prod |
+| `CORS_ORIGIN`     | Allowed CORS origin (the frontend URL)               | optional (defaults `http://localhost:3000`) |
+| `JWT_TTL`         | JWT lifetime, e.g. `1h`, `30m`                       | optional (default `1h`) |
+| `NODE_ENV`        | `development` enables the demo "pick a user" flow    | optional (default dev) |
+| `PORT`            | Backend port                                         | optional (default 4000) |
+
+In production (`NODE_ENV=production`):
+- TypeORM `synchronize` is **off** (use migrations).
+- Cookies are issued with `secure: true` (HTTPS only).
+- The demo `GET /api/auth/users` and `POST /api/auth/select` endpoints return 403.
+- Both secrets are validated for minimum length at boot.
+
+## Permission model
+
+Seven permissions: `view_users`, `create_user`, `edit_user`, `delete_user`, `view_roles`, `edit_roles`, `change_role`.
+
+Roles:
+
+- **Admin** — all 7 permissions
+- **Editor** — `view_users`, `edit_user`, `view_roles`, `change_role`
+- **Viewer** — `view_users` only (the `role` field is stripped from `/api/users` for Viewer)
+
+UI behavior is driven by `<PermissionGuard action="..." mode="hide|disable">` on top of `usePermission().can(...)`.
+
+Route-level enforcement: routes can declare `meta.requireAny: PermissionAction[]` and the router redirects to `/forbidden` if the session has none of them.
+
+## Architecture decisions
+
+- **Form validation: VeeValidate + Zod (frontend), class-validator (backend).** Frontend forms (`AddUserModal`, `EditUserModal`) use [`useForm` + `toTypedSchema(zodSchema)`](frontend/src/components/users/AddUserModal/useAddUserModal.ts), with schemas declared in [`frontend/src/schemas/user.schema.ts`](frontend/src/schemas/user.schema.ts). Backend keeps `class-validator` because it's NestJS-idiomatic and `HttpExceptionFilter` already surfaces its arrays as `errors[]` over the wire. The frontend's `extractFieldErrors` helper maps that array onto VeeValidate's `setFieldError`, so server-side rules (e.g. `Email already in use`) light up the same red-text UI as client-side rules. If we ever need a single source of truth, the Zod schemas can be lifted into a shared workspace and consumed on the backend via `nestjs-zod` without rewriting the rules.
+- **Permission source of truth.** A single `PermissionAction` union lives in `backend/src/permissions/entities/permission.entity.ts` and `frontend/src/types/permission.types.ts`. Roles map to permissions via a typed `PERMISSIONS_BY_ROLE` matrix.
+- **Session = snapshot.** On login the user's permissions are snapshotted into the session cookie. `PermissionsGuard` reads from the session, which is fast and avoids a per-request DB hit. `GET /api/auth/me` re-reads from DB so a permission update flushes through the next time the client refreshes.
+- **Default-deny guard.** `PermissionsGuard` requires `@RequirePermission(...)` metadata on every guarded handler. A handler with no metadata throws `Forbidden`, so adding a route without thinking about permissions can never silently pass.
+- **Unified envelope.** A global `TransformInterceptor` wraps successful responses as `{ data, message, statusCode }`; a global `HttpExceptionFilter` does the same for errors and additionally surfaces `class-validator` arrays as `errors: string[]` for per-field UI mapping. Unknown errors are logged server-side and masked as a generic 500 (no message leak).
+- **204 stays 204.** The interceptor short-circuits empty bodies on `DELETE` so we don't violate HTTP semantics.
+- **Frontend permission UX.** `<PermissionGuard mode="hide">` removes a slot; `mode="disable"` clones the slot vnode with `disabled: true` (works for leaf components like buttons). Route-level guards send unauthorized users to `/forbidden`; unknown URLs go to a real `/not-found`.
+
+## API surface
+
+### Core (required by the assignment)
+
+| Method | Path                  | Permission     | Notes                                        |
+| ------ | --------------------- | -------------- | -------------------------------------------- |
+| GET    | `/api/users`          | `view_users`   | Viewer payload omits the `role` field        |
+| POST   | `/api/users`          | `create_user`  |                                              |
+| PUT    | `/api/users/:id`      | `edit_user`    |                                              |
+| DELETE | `/api/users/:id`      | `delete_user`  | 204                                          |
+| GET    | `/api/roles`          | `view_roles`   | Returns roles + permissions                  |
+| PUT    | `/api/roles/:id`      | `edit_roles`   | Replaces the role's permission set           |
+| GET    | `/api/auth/me`        | session        |                                              |
+| POST   | `/api/auth/select`    | dev-only       | Body `{ userId }`, sets session cookie       |
+| POST   | `/api/auth/logout`    | none           | Clears session + JWT cookie                  |
+| GET    | `/api/auth/users`     | dev-only       | Public list used by the login screen         |
+
+### Bonus (JWT)
+
+| Method | Path                | Body                       | Notes                                                   |
+| ------ | ------------------- | -------------------------- | ------------------------------------------------------- |
+| POST   | `/api/auth/login`   | `{ email, password }`      | Returns `{ token, user }`; sets `perion.jwt` httpOnly cookie |
+
+The JWT login endpoint is fully working but the existing protected routes still consume the session cookie — JWT is provided as a bonus surface, not a replacement.
+
+Every response is wrapped as `{ data, message, statusCode }` (with optional `errors[]` on validation failures) by the `TransformInterceptor` and `HttpExceptionFilter`.
+
+## Tests
+
+| Layer    | Tool       | Files                                                                |
+| -------- | ---------- | -------------------------------------------------------------------- |
+| Backend  | Jest       | `backend/test/*.spec.ts` — UsersService, RolesService, PermissionsGuard, AuthService.login, HttpExceptionFilter |
+| Frontend | Vitest     | `frontend/src/**/*.test.ts` — base UI, PermissionGuard, UsersTable, BaseModal a11y |
+| E2E      | Playwright | `frontend/e2e/auth.spec.ts`, `frontend/e2e/permissions.spec.ts`        |
+
+### Run tests in Docker (no host Node required)
+
+```bash
+# unit tests (backend Jest + frontend Vitest), parallel
+docker compose -f docker-compose.test.yml --profile unit up --build --abort-on-container-exit
+
+# end-to-end (Postgres + backend + frontend + Playwright in containers)
+docker compose -f docker-compose.test.yml --profile e2e up --build --abort-on-container-exit --exit-code-from e2e
+
+# everything
+docker compose -f docker-compose.test.yml --profile unit --profile e2e up --build --abort-on-container-exit --exit-code-from e2e
+```
+
+The same compose file is used by [.github/workflows/ci.yml](.github/workflows/ci.yml).
+
+### Run tests on the host
+
+```bash
+# backend
+cd backend && npm test
+
+# frontend
+cd frontend && npm test
+
+# Playwright (needs the app + backend running locally)
+cd frontend && npm run e2e
+```
+
+## Project layout
+
+```
+backend/                 NestJS API: auth, users, roles, permissions, seed
+frontend/                Vue 3 SPA: pages, composables, stores, services, router
+.github/workflows/ci.yml CI: backend + frontend + e2e via docker-compose.test.yml
+docker-compose.yml       Production-style local run (db + backend + frontend)
+docker-compose.test.yml  Test profiles: unit + e2e
+```
