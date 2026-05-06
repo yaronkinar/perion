@@ -61,13 +61,13 @@ describe('createUserSchema', () => {
 });
 
 describe('updateUserSchema', () => {
-  it('allows roleId to be omitted (Editor cannot change role)', () => {
+  it('requires roleId to be present, even when null for editors', () => {
     const result = updateUserSchema.safeParse({
       name: 'Edited',
       email: 'edited@test.com',
       status: 'active',
     });
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 
   it('allows roleId to be null (initial form state)', () => {
