@@ -8,6 +8,8 @@ import {
 } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRouter, type Router } from 'vue-router';
+import { useField, useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
 import type { SelectOption } from '@/components/ui/BaseSelect/BaseSelect.types';
 import { useAuthStore } from '@/stores/auth.store';
 import { useToastStore } from '@/stores/toast.store';
@@ -17,9 +19,12 @@ import {
   SUCCESS_MESSAGES,
 } from '@/constants/messages';
 import { roleBadgeVariant, type RoleBadgeVariant } from '@/constants/roles';
+import { extractMessage } from '@/services/http';
+import { loginSchema, type LoginFormValues } from '@/schemas/login.schema';
 import type { PublicUserSummary } from '@/types/user.types';
 
 export type LoginRoleBadgeVariant = RoleBadgeVariant;
+export type LoginMode = 'demo' | 'password';
 
 export interface UseLoginPageReturn {
   availableUsers: Ref<PublicUserSummary[]>;
@@ -31,6 +36,16 @@ export interface UseLoginPageReturn {
   selectedUser: ComputedRef<PublicUserSummary | null>;
   badgeVariant: (roleName: string) => LoginRoleBadgeVariant;
   handleSubmit: (event: Event) => Promise<void>;
+
+  // Email/password (JWT) mode
+  mode: Ref<LoginMode>;
+  setMode: (next: LoginMode) => void;
+  passwordEmail: Ref<string>;
+  passwordPassword: Ref<string>;
+  passwordErrors: Ref<Partial<Record<keyof LoginFormValues, string>>>;
+  passwordSubmitting: Ref<boolean>;
+  passwordError: Ref<string | null>;
+  handlePasswordSubmit: (event?: Event) => Promise<unknown>;
 }
 
 interface UseLoginPageOptions {
@@ -48,8 +63,33 @@ export function useLoginPage(
   const selectedUserId = ref<string | null>(null);
   const submitting = ref<boolean>(false);
 
+  // --- Email/password (JWT) form -----------------------------------------
+  const mode = ref<LoginMode>('demo');
+  const passwordSubmitting = ref<boolean>(false);
+  const passwordError = ref<string | null>(null);
+
+  const passwordForm = useForm<LoginFormValues>({
+    validationSchema: toTypedSchema(loginSchema),
+    initialValues: { email: '', password: '' },
+  });
+  const { value: passwordEmail } = useField<string>('email');
+  const { value: passwordPassword } = useField<string>('password');
+  const passwordErrors = passwordForm.errors as Ref<
+    Partial<Record<keyof LoginFormValues, string>>
+  >;
+
+  function setMode(next: LoginMode): void {
+    mode.value = next;
+    passwordError.value = null;
+  }
+
   onMounted(async () => {
     await auth.fetchAvailableUsers();
+    // If the demo endpoint is gated (e.g. production), fall back to the
+    // password form so the user always has a way in.
+    if (availableUsers.value.length === 0 && error.value) {
+      mode.value = 'password';
+    }
   });
 
   watch(availableUsers, (users) => {
@@ -92,6 +132,23 @@ export function useLoginPage(
     }
   }
 
+  const handlePasswordSubmit = passwordForm.handleSubmit(async (values) => {
+    if (passwordSubmitting.value) return;
+    passwordSubmitting.value = true;
+    passwordError.value = null;
+    try {
+      const user = await auth.loginWithPassword(values.email, values.password);
+      toast.success(SUCCESS_MESSAGES.signedInAs(user.name));
+      await router.push({ name: ROUTE_NAMES.DASHBOARD });
+    } catch (err) {
+      const message = extractMessage(err, ERROR_MESSAGES.loginCouldNot);
+      passwordError.value = message;
+      toast.error(message);
+    } finally {
+      passwordSubmitting.value = false;
+    }
+  });
+
   return {
     availableUsers,
     loading,
@@ -102,5 +159,14 @@ export function useLoginPage(
     selectedUser,
     badgeVariant,
     handleSubmit,
+
+    mode,
+    setMode,
+    passwordEmail,
+    passwordPassword,
+    passwordErrors,
+    passwordSubmitting,
+    passwordError,
+    handlePasswordSubmit,
   };
 }

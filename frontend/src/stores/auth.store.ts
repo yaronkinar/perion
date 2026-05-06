@@ -52,6 +52,25 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function loginWithPassword(
+    email: string,
+    password: string,
+  ): Promise<UserWithPermissions> {
+    loading.value = true;
+    error.value = null;
+    try {
+      const result = await authService.loginWithPassword(email, password);
+      currentUser.value = result.user;
+      initialized.value = true;
+      return result.user;
+    } catch (err) {
+      error.value = extractMessage(err, ERROR_MESSAGES.loginFailed);
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function logout(): Promise<void> {
     loading.value = true;
     error.value = null;
@@ -98,6 +117,7 @@ export const useAuthStore = defineStore('auth', () => {
     roleName,
     fetchAvailableUsers,
     login,
+    loginWithPassword,
     logout,
     fetchMe,
     clear,

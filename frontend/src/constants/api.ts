@@ -3,6 +3,7 @@ export const API_BASE_URL = '/api' as const;
 export const AUTH_ROUTES = {
   USERS: '/auth/users',
   SELECT: '/auth/select',
+  LOGIN: '/auth/login',
   LOGOUT: '/auth/logout',
   ME: '/auth/me',
 } as const;

@@ -6,6 +6,11 @@ import type {
   UserWithPermissions,
 } from '@/types/user.types';
 
+export interface LoginResponse {
+  token: string;
+  user: UserWithPermissions;
+}
+
 export const authService = {
   async listUsers(): Promise<PublicUserSummary[]> {
     const response = await http.get<ApiResponse<PublicUserSummary[]>>(
@@ -18,6 +23,17 @@ export const authService = {
     const response = await http.post<ApiResponse<UserWithPermissions>>(
       AUTH_ROUTES.SELECT,
       { userId },
+    );
+    return unwrap(response);
+  },
+
+  async loginWithPassword(
+    email: string,
+    password: string,
+  ): Promise<LoginResponse> {
+    const response = await http.post<ApiResponse<LoginResponse>>(
+      AUTH_ROUTES.LOGIN,
+      { email, password },
     );
     return unwrap(response);
   },

@@ -29,13 +29,21 @@ export const CONFIRM_MESSAGES = {
 export const COPY = {
   appTitle: 'Perion RBAC',
   loginHeading: 'Welcome to Perion RBAC',
-  loginSubheading: 'Pick a user to sign in. No password required for the demo.',
+  loginSubheading: 'Pick a demo user or sign in with email and password.',
   loadingUsers: 'Loading users...',
   noUsersAvailable: 'No users available. Run the backend seed and try again.',
   signIn: 'Sign in',
   signOut: 'Sign out',
   signInAs: 'Sign in as',
   selectAUser: 'Select a user',
+  loginTabDemo: 'Demo user',
+  loginTabPassword: 'Email & password',
+  loginEmailLabel: 'Email',
+  loginPasswordLabel: 'Password',
+  loginEmailPlaceholder: 'admin@test.com',
+  loginPasswordPlaceholder: 'Password123!',
+  loginSeedHint:
+    'Seeded users: admin@test.com, editor@test.com, viewer@test.com (password: Password123!).',
   dashboardTitle: 'Dashboard',
   usersHeading: 'Users',
   usersSubheading: 'Manage who has access and what they can do.',
@@ -86,6 +94,8 @@ export const VALIDATION_MESSAGES = {
   emailRequired: 'Email is required',
   emailInvalid: 'Email is invalid',
   roleRequired: 'Role is required',
+  passwordRequired: 'Password is required',
+  passwordTooShort: 'Password must be at least 8 characters',
 } as const;
 
 export const ROUTE_NAMES = {

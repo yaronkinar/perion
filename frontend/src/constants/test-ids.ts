@@ -1,5 +1,11 @@
 export const TEST_IDS = {
   loginForm: 'login-form',
+  loginTabDemo: 'login-tab-demo',
+  loginTabPassword: 'login-tab-password',
+  loginPasswordForm: 'login-password-form',
+  loginEmailInput: 'login-email-input',
+  loginPasswordInput: 'login-password-input',
+  loginPasswordSubmit: 'login-password-submit',
   userSelector: 'user-selector',
   loginSubmit: 'login-submit',
   logoutButton: 'logout-button',

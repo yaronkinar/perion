@@ -54,12 +54,18 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() dto: LoginDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResult> {
     const result = await this.authService.loginWithPassword(
       dto.email,
       dto.password,
     );
+    // Seed the session in addition to issuing the JWT, so the existing
+    // session-cookie-based guards (PermissionsGuard, /auth/me) work for
+    // browser clients without a separate JWT integration. Bearer-token
+    // clients can still rely solely on the returned `token`.
+    req.session.user = result.user;
     res.cookie(JWT_COOKIE_NAME, result.token, {
       httpOnly: true,
       sameSite: 'lax',

@@ -170,4 +170,141 @@ describe('useLoginPage', () => {
     await result.handleSubmit(new Event('submit', { cancelable: true }));
     expect(auth.login).not.toHaveBeenCalled();
   });
+
+  describe('email/password (JWT) mode', () => {
+    it('starts in demo mode and switches to password via setMode', async () => {
+      const auth = useAuthStore();
+      auth.availableUsers = [...seededUsers];
+      auth.fetchAvailableUsers = vi.fn(async () => undefined);
+
+      const { result } = mountHarness(fakeRouter());
+      await nextTick();
+      expect(result.mode.value).toBe('demo');
+
+      result.setMode('password');
+      expect(result.mode.value).toBe('password');
+    });
+
+    it('falls back to password mode when demo users are unavailable (e.g. prod)', async () => {
+      const auth = useAuthStore();
+      auth.fetchAvailableUsers = vi.fn(async () => {
+        auth.availableUsers = [];
+        auth.error = 'Demo auth disabled';
+      });
+
+      const { result } = mountHarness(fakeRouter());
+      await nextTick();
+      await nextTick();
+      await nextTick();
+
+      expect(result.mode.value).toBe('password');
+    });
+
+    it('rejects an invalid email and never calls loginWithPassword', async () => {
+      const auth = useAuthStore();
+      auth.availableUsers = [...seededUsers];
+      auth.fetchAvailableUsers = vi.fn(async () => undefined);
+      auth.loginWithPassword = vi.fn();
+
+      const { result } = mountHarness(fakeRouter());
+      await nextTick();
+
+      result.setMode('password');
+      result.passwordEmail.value = 'not-an-email';
+      result.passwordPassword.value = 'Password123!';
+      await nextTick();
+
+      await result.handlePasswordSubmit();
+
+      expect(auth.loginWithPassword).not.toHaveBeenCalled();
+      expect(result.passwordErrors.value.email).toBeTruthy();
+    });
+
+    it('rejects a short password and never calls loginWithPassword', async () => {
+      const auth = useAuthStore();
+      auth.availableUsers = [...seededUsers];
+      auth.fetchAvailableUsers = vi.fn(async () => undefined);
+      auth.loginWithPassword = vi.fn();
+
+      const { result } = mountHarness(fakeRouter());
+      await nextTick();
+
+      result.setMode('password');
+      result.passwordEmail.value = 'admin@test.com';
+      result.passwordPassword.value = 'short';
+      await nextTick();
+
+      await result.handlePasswordSubmit();
+
+      expect(auth.loginWithPassword).not.toHaveBeenCalled();
+      expect(result.passwordErrors.value.password).toBeTruthy();
+    });
+
+    it('logs in, toasts success, and navigates to dashboard on a valid submit', async () => {
+      const auth = useAuthStore();
+      const toast = useToastStore();
+      const fakeUser: UserWithPermissions = {
+        id: 'u-admin',
+        name: 'Admin User',
+        email: 'admin@test.com',
+        status: 'active',
+        role: { id: 'r', name: 'Admin', permissions: [] },
+        permissions: ['view_users'],
+      };
+      auth.availableUsers = [...seededUsers];
+      auth.fetchAvailableUsers = vi.fn(async () => undefined);
+      auth.loginWithPassword = vi.fn(async () => {
+        auth.setUser(fakeUser);
+        return fakeUser;
+      });
+
+      const successSpy = vi.spyOn(toast, 'success');
+      const router = fakeRouter();
+      const { result } = mountHarness(router);
+
+      await nextTick();
+      result.setMode('password');
+      result.passwordEmail.value = 'admin@test.com';
+      result.passwordPassword.value = 'Password123!';
+      await nextTick();
+
+      await result.handlePasswordSubmit();
+
+      expect(auth.loginWithPassword).toHaveBeenCalledWith(
+        'admin@test.com',
+        'Password123!',
+      );
+      expect(successSpy).toHaveBeenCalledWith('Signed in as Admin User');
+      expect(router.push).toHaveBeenCalledWith({ name: 'dashboard' });
+      expect(result.passwordSubmitting.value).toBe(false);
+      expect(result.passwordError.value).toBeNull();
+    });
+
+    it('surfaces a server error when loginWithPassword throws', async () => {
+      const auth = useAuthStore();
+      const toast = useToastStore();
+      auth.availableUsers = [...seededUsers];
+      auth.fetchAvailableUsers = vi.fn(async () => undefined);
+      auth.loginWithPassword = vi.fn(async () => {
+        throw new Error('Invalid credentials');
+      });
+
+      const errorSpy = vi.spyOn(toast, 'error');
+      const router = fakeRouter();
+      const { result } = mountHarness(router);
+
+      await nextTick();
+      result.setMode('password');
+      result.passwordEmail.value = 'admin@test.com';
+      result.passwordPassword.value = 'WrongPassword1';
+      await nextTick();
+
+      await result.handlePasswordSubmit();
+
+      expect(errorSpy).toHaveBeenCalled();
+      expect(router.push).not.toHaveBeenCalled();
+      expect(result.passwordError.value).toBeTruthy();
+      expect(result.passwordSubmitting.value).toBe(false);
+    });
+  });
 });
