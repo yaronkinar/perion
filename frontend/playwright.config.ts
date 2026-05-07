@@ -19,7 +19,7 @@ export default defineConfig({
     baseURL,
     headless: true,
     trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
+    screenshot: process.env.CI ? 'on' : 'only-on-failure',
     testIdAttribute: 'data-test',
   },
   projects: [
