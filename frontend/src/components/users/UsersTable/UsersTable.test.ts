@@ -34,7 +34,6 @@ const seedUsers: User[] = [
     role: viewerRole,
   },
 ];
-
 function loginAs(permissions: PermissionAction[]): void {
   const stub: UserWithPermissions = {
     id: 'sb',

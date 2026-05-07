@@ -1,0 +1,1430 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\playwright.config.ts",
+    "rootDir": "C:/Users/yaron/WebstormProjects/perion/frontend/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 5
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/yaron/WebstormProjects/perion/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/yaron/WebstormProjects/perion/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright-report.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 10,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication",
+          "file": "auth.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "lists the three seeded users in the selector",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2195,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:53.574Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\auth-Authentication-lists--0c1ab-eeded-users-in-the-selector-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\auth-Authentication-lists--0c1ab-eeded-users-in-the-selector-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-77efa6d8d170ce439b32",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "selecting a user and submitting signs in and redirects to the dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2370,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:55.921Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\auth-Authentication-select-561f1--redirects-to-the-dashboard-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\auth-Authentication-select-561f1--redirects-to-the-dashboard-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-9001c4ad80ea92a2416c",
+              "file": "auth.spec.ts",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "logout returns to the login screen",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3155,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:58.309Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\auth-Authentication-logout-returns-to-the-login-screen-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\auth-Authentication-logout-returns-to-the-login-screen-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-387e5f318c30de62566e",
+              "file": "auth.spec.ts",
+              "line": 30,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "password-login.spec.ts",
+      "file": "password-login.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Password login",
+          "file": "password-login.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Email & password tab shows the form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2331,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:53.558Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-88577-password-tab-shows-the-form-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-88577-password-tab-shows-the-form-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8134d78862b35239024a-24e6f72e12d33480d341",
+              "file": "password-login.spec.ts",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "signs in with seeded admin credentials and lands on the dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2868,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:56.019Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-b5ce1--and-lands-on-the-dashboard-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-b5ce1--and-lands-on-the-dashboard-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8134d78862b35239024a-c11bc62bdce04d27273b",
+              "file": "password-login.spec.ts",
+              "line": 22,
+              "column": 3
+            },
+            {
+              "title": "signs in as viewer via password and shows the limited dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2549,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:58.901Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-285c7-shows-the-limited-dashboard-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-285c7-shows-the-limited-dashboard-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8134d78862b35239024a-adb699e15967184503b1",
+              "file": "password-login.spec.ts",
+              "line": 33,
+              "column": 3
+            },
+            {
+              "title": "shows an error for wrong password without leaving the login page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2893,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:01.462Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-9ab1e-hout-leaving-the-login-page-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-9ab1e-hout-leaving-the-login-page-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8134d78862b35239024a-69bc02e72e9fb55db2f4",
+              "file": "password-login.spec.ts",
+              "line": 45,
+              "column": 3
+            },
+            {
+              "title": "blocks submit when password is shorter than 8 characters (client validation)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1231,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:04.369Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-1c6a6-aracters-client-validation--chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-1c6a6-aracters-client-validation--chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8134d78862b35239024a-c829221110782d4b8900",
+              "file": "password-login.spec.ts",
+              "line": 58,
+              "column": 3
+            },
+            {
+              "title": "blocks submit when email is not valid (client validation)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1134,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:05.612Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-b93c6-ot-valid-client-validation--chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Password-lo-b93c6-ot-valid-client-validation--chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8134d78862b35239024a-d801dcdf3b4551f5e02a",
+              "file": "password-login.spec.ts",
+              "line": 71,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Route guard",
+          "file": "password-login.spec.ts",
+          "line": 85,
+          "column": 6,
+          "specs": [
+            {
+              "title": "redirects unauthenticated visitors from /dashboard to /login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 607,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:06.758Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Route-guard-27a7d-ors-from-dashboard-to-login-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\password-login-Route-guard-27a7d-ors-from-dashboard-to-login-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8134d78862b35239024a-1efc46e2d3db22156a5f",
+              "file": "password-login.spec.ts",
+              "line": 86,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "permissions.spec.ts",
+      "file": "permissions.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Permission visibility",
+          "file": "permissions.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "RBAC matrix for dashboard sections, actions, role editing, and header",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 9284,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:53.575Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-d603d-ons-role-editing-and-header-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-d603d-ons-role-editing-and-header-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2c839d05731ea67d2a7-ebf06617ca48b2fe851d",
+              "file": "permissions.spec.ts",
+              "line": 23,
+              "column": 3
+            },
+            {
+              "title": "Admin sees Add User and the Edit Role button is enabled",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1973,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:03.012Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-b4bca-Edit-Role-button-is-enabled-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-b4bca-Edit-Role-button-is-enabled-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2c839d05731ea67d2a7-8f22820c800e7c2ed44b",
+              "file": "permissions.spec.ts",
+              "line": 129,
+              "column": 3
+            },
+            {
+              "title": "Editor: Add User hidden, Edit Role visible but disabled, Delete hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1579,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:04.999Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-b9d62--but-disabled-Delete-hidden-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-b9d62--but-disabled-Delete-hidden-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2c839d05731ea67d2a7-39269dcee9cb1e8506a7",
+              "file": "permissions.spec.ts",
+              "line": 143,
+              "column": 3
+            },
+            {
+              "title": "Viewer: roles section hidden, no actions, no Role column",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1469,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:06.591Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-9d5fe-n-no-actions-no-Role-column-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-9d5fe-n-no-actions-no-Role-column-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2c839d05731ea67d2a7-8b3d909bafcf55e53301",
+              "file": "permissions.spec.ts",
+              "line": 160,
+              "column": 3
+            },
+            {
+              "title": "users table action controls are role-based",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 5667,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:08.075Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-9aa12-ion-controls-are-role-based-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-9aa12-ion-controls-are-role-based-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2c839d05731ea67d2a7-0e14d59fecd83c86a107",
+              "file": "permissions.spec.ts",
+              "line": 174,
+              "column": 3
+            },
+            {
+              "title": "role-based action visibility matrix",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 5292,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:13.751Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-eda2a-ed-action-visibility-matrix-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\permissions-Permission-vis-eda2a-ed-action-visibility-matrix-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e2c839d05731ea67d2a7-216815c380ac36cd4945",
+              "file": "permissions.spec.ts",
+              "line": 227,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ui-flows.spec.ts",
+      "file": "ui-flows.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "UI flows",
+          "file": "ui-flows.spec.ts",
+          "line": 37,
+          "column": 6,
+          "specs": [
+            {
+              "title": "password visibility toggle switches the password input type",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2485,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:53.558Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-password-9d2e4-hes-the-password-input-type-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-password-9d2e4-hes-the-password-input-type-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89147e0413fd998ccfca-5471a8c0ab3d2699f9c0",
+              "file": "ui-flows.spec.ts",
+              "line": 38,
+              "column": 3
+            },
+            {
+              "title": "password login email validates on blur",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2062,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:56.176Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-password-login-email-validates-on-blur-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-password-login-email-validates-on-blur-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89147e0413fd998ccfca-d3913a20870350aa4e29",
+              "file": "ui-flows.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "password login password validates on blur",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 1916,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:58.252Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-password-login-password-validates-on-blur-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-password-login-password-validates-on-blur-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89147e0413fd998ccfca-40999340226c65ffe11f",
+              "file": "ui-flows.spec.ts",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "add user modal closes when clicking the backdrop",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2584,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:00.183Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-add-user-0f16c--when-clicking-the-backdrop-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-add-user-0f16c--when-clicking-the-backdrop-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89147e0413fd998ccfca-f28a6b3e5d3234ca7076",
+              "file": "ui-flows.spec.ts",
+              "line": 74,
+              "column": 3
+            },
+            {
+              "title": "editing a user updates table values and shows success toast",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 3450,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:02.779Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-editing--fbd3e-ues-and-shows-success-toast-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-editing--fbd3e-ues-and-shows-success-toast-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89147e0413fd998ccfca-99572e43110fda26b38b",
+              "file": "ui-flows.spec.ts",
+              "line": 82,
+              "column": 3
+            },
+            {
+              "title": "add user form validates invalid email before submit",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 1804,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:06.239Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-add-user-d1d8b-invalid-email-before-submit-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-add-user-d1d8b-invalid-email-before-submit-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89147e0413fd998ccfca-367a237a16eba390fd5f",
+              "file": "ui-flows.spec.ts",
+              "line": 112,
+              "column": 3
+            },
+            {
+              "title": "add user form validates email on blur",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 1817,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:08.053Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-add-user-form-validates-email-on-blur-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-add-user-form-validates-email-on-blur-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89147e0413fd998ccfca-0b33d0f78e01f3999a07",
+              "file": "ui-flows.spec.ts",
+              "line": 124,
+              "column": 3
+            },
+            {
+              "title": "edit user form validates invalid email before submit",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2085,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:09.882Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-edit-use-34ab7-invalid-email-before-submit-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-edit-use-34ab7-invalid-email-before-submit-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89147e0413fd998ccfca-345a8e0bf17f57e2c2aa",
+              "file": "ui-flows.spec.ts",
+              "line": 136,
+              "column": 3
+            },
+            {
+              "title": "edit user form validates email on blur",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 1845,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:11.975Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-edit-user-form-validates-email-on-blur-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-edit-user-form-validates-email-on-blur-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89147e0413fd998ccfca-9a7a6634cb24f28da075",
+              "file": "ui-flows.spec.ts",
+              "line": 148,
+              "column": 3
+            },
+            {
+              "title": "admin can update a role permission and revert it",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2965,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:08:13.829Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-admin-ca-8b098-le-permission-and-revert-it-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\ui-flows-UI-flows-admin-ca-8b098-le-permission-and-revert-it-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89147e0413fd998ccfca-f4c19697538446bccf78",
+              "file": "ui-flows.spec.ts",
+              "line": 162,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "user-delete.spec.ts",
+      "file": "user-delete.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Delete user modal",
+          "file": "user-delete.spec.ts",
+          "line": 47,
+          "column": 6,
+          "specs": [
+            {
+              "title": "cancel keeps the user and closes the modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 5592,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:53.574Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\user-delete-Delete-user-mo-d748a-e-user-and-closes-the-modal-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\user-delete-Delete-user-mo-d748a-e-user-and-closes-the-modal-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "edf7ae292df47445e02b-0cdc3a83a5aeeb0abab3",
+              "file": "user-delete.spec.ts",
+              "line": 48,
+              "column": 3
+            },
+            {
+              "title": "confirm removes the user and shows success toast",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 4984,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-07T13:07:59.345Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\user-delete-Delete-user-mo-1a915-ser-and-shows-success-toast-chromium\\test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\yaron\\WebstormProjects\\perion\\frontend\\test-results\\user-delete-Delete-user-mo-1a915-ser-and-shows-success-toast-chromium\\video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "edf7ae292df47445e02b-4c2f949323c9af2eef53",
+              "file": "user-delete.spec.ts",
+              "line": 69,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-05-07T13:07:52.579Z",
+    "duration": 27149.485,
+    "expected": 28,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

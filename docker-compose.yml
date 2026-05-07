@@ -36,8 +36,6 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       SESSION_SECRET: ${SESSION_SECRET:-local-dev-session-secret-change-me}
       JWT_SECRET: ${JWT_SECRET:-local-dev-jwt-secret-change-me-1234}
-      AUTH_LOGIN_THROTTLE_LIMIT: ${AUTH_LOGIN_THROTTLE_LIMIT:-5}
-      AUTH_LOGIN_THROTTLE_TTL_SECONDS: ${AUTH_LOGIN_THROTTLE_TTL_SECONDS:-60}
       # Browsers omit Secure cookies on plain HTTP — required for localhost compose.
       COOKIE_SECURE: "false"
 

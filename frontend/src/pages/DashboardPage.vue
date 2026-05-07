@@ -14,6 +14,7 @@ import RolesList from '@/components/roles/RolesList/RolesList.vue';
 import EditRoleModal from '@/components/roles/EditRoleModal/EditRoleModal.vue';
 import { COPY } from '@/constants/messages';
 import { TEST_IDS } from '@/constants/test-ids';
+import type { Role } from '@/types/role.types';
 import { useDashboardPage } from './useDashboardPage';
 
 const {
@@ -83,7 +84,7 @@ const {
         <RolesList
           :roles="rolesState.roles.value"
           :loading="rolesState.loading.value"
-          @edit="(r) => (editingRole = r)"
+          @edit="(r: Role) => (editingRole = r)"
         />
         <UiText v-if="rolesState.error.value" variant="errorMt" role="alert">
           {{ rolesState.error.value }}

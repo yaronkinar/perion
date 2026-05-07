@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { SUCCESS_MESSAGES, VALIDATION_MESSAGES } from '../src/constants/messages';
-import { openPasswordLogin } from './helpers';
+import { openPasswordLogin, selectFirstAvailableRole } from './helpers';
 
 function rowForUser(page: Page, email: string): Locator {
   return page.locator('tbody tr', { hasText: email });
@@ -22,17 +22,7 @@ async function createUser(page: Page, name: string, email: string): Promise<void
 
   await page.getByTestId('add-user-name').locator('input').fill(name);
   await page.getByTestId('add-user-email').locator('input').fill(email);
-
-  const roleSelect = page.getByLabel(/^Role/);
-  const roleValue = await roleSelect.evaluate((node) => {
-    const select = node as HTMLSelectElement;
-    const firstRole = Array.from(select.options).find(
-      (option) => !option.disabled && option.value !== '',
-    );
-    return firstRole?.value ?? '';
-  });
-  expect(roleValue).not.toBe('');
-  await roleSelect.selectOption(roleValue);
+  await selectFirstAvailableRole(page);
 
   await page.getByRole('button', { name: 'Create user' }).click();
   await expect(
@@ -126,16 +116,7 @@ test.describe('UI flows', () => {
 
     await page.getByTestId('add-user-name').locator('input').fill('Validation User');
     await page.getByTestId('add-user-email').locator('input').fill('not-an-email');
-    const roleSelect = page.getByLabel(/^Role/);
-    const roleValue = await roleSelect.evaluate((node) => {
-      const select = node as HTMLSelectElement;
-      const firstRole = Array.from(select.options).find(
-        (option) => !option.disabled && option.value !== '',
-      );
-      return firstRole?.value ?? '';
-    });
-    expect(roleValue).not.toBe('');
-    await roleSelect.selectOption(roleValue);
+    await selectFirstAvailableRole(page);
     await page.getByRole('button', { name: 'Create user' }).click();
     await expect(page.getByText(VALIDATION_MESSAGES.emailInvalid)).toBeVisible();
   });

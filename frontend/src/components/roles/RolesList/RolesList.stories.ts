@@ -53,6 +53,21 @@ const meta: Meta<typeof RolesList> = {
   component: RolesList,
   tags: ['autodocs'],
   decorators: [adminLoggedIn],
+  parameters: {
+    docs: {
+      description: {
+        component: `
+RBAC matrix reference for this section:
+
+| UI Element | Admin | Editor | Viewer |
+| --- | --- | --- | --- |
+| Roles section | Visible | Visible | Hidden |
+| Role details/permissions | Visible | Visible | Hidden |
+| Edit Role button | Enabled | Disabled | Hidden |
+`,
+      },
+    },
+  },
 };
 export default meta;
 type Story = StoryObj<typeof RolesList>;

@@ -1,59 +1,31 @@
 <script setup lang="ts">
-
 import BaseBadge from '../../ui/BaseBadge/BaseBadge.vue';
-
 import BaseButton from '../../ui/BaseButton/BaseButton.vue';
-
 import BaseTable from '../../ui/BaseTable/BaseTable.vue';
-
 import PermissionGuard from '../../permission/PermissionGuard/PermissionGuard.vue';
-
 import UiFlex from '@/components/ui/primitives/UiFlex.vue';
-
 import { roleBadgeVariant } from '@/constants/roles';
-
 import { USER_STATUS_ACTIVE } from '@/constants/user-status';
-
 import { COPY } from '@/constants/messages';
-
 import { TEST_IDS } from '@/constants/test-ids';
-
 import { USERS_TABLE_COLUMN_LABELS, useUsersTable } from './useUsersTable';
-
 import type { User } from '@/types/user.types';
 
-
-
 interface Props {
-
   users: User[];
-
   loading?: boolean;
-
 }
 
-
-
-withDefaults(defineProps<Props>(), {
-
+const props = withDefaults(defineProps<Props>(), {
   loading: false,
-
 });
 
-
-
 defineEmits<{
-
   (event: 'edit', user: User): void;
-
   (event: 'delete', user: User): void;
-
 }>();
 
-
-
 const { showRoleColumn, showActionsColumn, columns } = useUsersTable();
-
 </script>
 
 
@@ -87,8 +59,6 @@ const { showRoleColumn, showActionsColumn, columns } = useUsersTable();
         {{ (row as User).role?.name ?? USERS_TABLE_COLUMN_LABELS.emRowFallback }}
       </BaseBadge>
     </template>
-
-
 
     <template v-if="showActionsColumn" #cell-actions="{ row }">
       <UiFlex variant="inlineActions">

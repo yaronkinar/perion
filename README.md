@@ -35,8 +35,6 @@ docker-compose up --build
 ```bash
 # boot app
 docker compose up --build
-# (legacy equivalent)
-# docker-compose up --build
 
 # unit tests
 cd backend && npm test
@@ -147,8 +145,6 @@ Storybook runs at http://localhost:6006.
 | `JWT_SECRET`      | HMAC secret for JWT signing                          | always; ≥32 chars in prod |
 | `CORS_ORIGIN`     | Allowed CORS origin (the frontend URL)               | optional (defaults `http://localhost:3000`) |
 | `JWT_TTL`         | JWT lifetime, e.g. `1h`, `30m`                       | optional (default `1h`) |
-| `AUTH_LOGIN_THROTTLE_LIMIT` | Max login attempts per throttle window      | optional (default `5`) |
-| `AUTH_LOGIN_THROTTLE_TTL_SECONDS` | Login throttle window in seconds       | optional (default `60`) |
 | `NODE_ENV`        | `production` enables trust-proxy behavior; demo pick-a-user stays on | optional (`development` in local Node) |
 | `COOKIE_SECURE`   | `true` / `false` — session/JWT `Secure` flag (default: on when `NODE_ENV=production`) | optional; compose sets `false` for HTTP localhost |
 | `PORT`            | Backend port                                         | optional (default 4000) |
@@ -169,6 +165,22 @@ Roles:
 - **Editor** — `view_users`, `edit_user`, `view_roles`, `change_role`
 - **Viewer** — `view_users` only (the `role` field is stripped from `/api/users` for Viewer)
 
+### UI access matrix
+
+| UI Element | Admin | Editor | Viewer | Description |
+| --- | --- | --- | --- | --- |
+| Users Table | ✅ Visible | ✅ Visible | ✅ Visible | List of all users (Viewer: role column hidden) |
+| └─ Add User button | ✅ Enabled | ❌ Hidden | ❌ Hidden | Create new user |
+| └─ Edit button (per row) | ✅ Enabled | ✅ Enabled | ❌ Hidden | Modify user details |
+| └─ Delete button (per row) | ✅ Enabled | ❌ Hidden | ❌ Hidden | Remove user |
+| └─ Change Role dropdown (inside Edit User modal) | ✅ Enabled | ✅ Enabled | ❌ Hidden | Assign role to user |
+| Roles section | ✅ Visible | ✅ Visible | ❌ Hidden | List of roles |
+| └─ Role details/permissions | ✅ Visible | ✅ Visible | ❌ Hidden | View role permissions |
+| └─ Edit Role button | ✅ Enabled | 🔒 Disabled | ❌ Hidden | Modify role permissions (Editor can view only) |
+| Header/Nav |  |  |  |  |
+| └─ Current User Display | ✅ Visible | ✅ Visible | ✅ Visible | Shows logged-in user |
+| └─ Logout Button | ✅ Visible | ✅ Visible | ✅ Visible | Return to user selection |
+
 UI behavior is driven by `<PermissionGuard action="..." mode="hide|disable">` on top of `usePermission().can(...)`.
 
 Route-level enforcement: routes can declare `meta.requireAny: PermissionAction[]` and the router redirects to `/forbidden` if the session has none of them.
@@ -177,8 +189,8 @@ Route-level enforcement: routes can declare `meta.requireAny: PermissionAction[]
 
 - **Form validation: VeeValidate + Zod (frontend), class-validator (backend).** Frontend forms (`AddUserModal`, `EditUserModal`) use [`useForm` + `toTypedSchema(zodSchema)`](frontend/src/components/users/AddUserModal/useAddUserModal.ts), with schemas declared in [`frontend/src/schemas/user.schema.ts`](frontend/src/schemas/user.schema.ts). Backend keeps `class-validator` because it's NestJS-idiomatic and `HttpExceptionFilter` already surfaces its arrays as `errors[]` over the wire. The frontend's `extractFieldErrors` helper maps that array onto VeeValidate's `setFieldError`, so server-side rules (e.g. `Email already in use`) light up the same red-text UI as client-side rules. If we ever need a single source of truth, the Zod schemas can be lifted into a shared workspace and consumed on the backend via `nestjs-zod` without rewriting the rules.
 - **Permission source of truth.** Backend owns canonical permission names (`backend/src/permissions/entities/permission.entity.ts`) and role mappings (`PERMISSIONS_BY_ROLE`). Frontend consumes permission names from API payloads and treats `PermissionAction` as a string type to avoid FE/BE code coupling.
-- **Session = snapshot.** On login the user's permissions are snapshotted into the session cookie. `PermissionsGuard` reads from the session, which is fast and avoids a per-request DB hit. If a role's permissions change while a user is logged in, existing requests keep using the old snapshot until the session is refreshed (`GET /api/auth/me`) or the user logs in again.
-- **Default-deny guard.** `PermissionsGuard` requires `@RequirePermission(...)` metadata on every guarded handler. A handler with no metadata throws `Forbidden`, so adding a route without thinking about permissions can never silently pass.
+- **Session = snapshot.** On login the user's permissions are snapshotted into the session cookie. `PermissionsMiddleware` reads from the session, which is fast and avoids a per-request DB hit. If a role's permissions change while a user is logged in, existing requests keep using the old snapshot until the session is refreshed (`GET /api/auth/me`) or the user logs in again.
+- **Default-deny middleware routing.** `PermissionsMiddleware` maps protected method+path combinations (for `/api/users` and `/api/roles`) to required permissions and denies when no session/permission is present. This keeps enforcement centralized and prevents route handlers from bypassing checks.
 - **Unified envelope.** A global `TransformInterceptor` wraps successful responses as `{ data, message, statusCode }`; a global `HttpExceptionFilter` does the same for errors and additionally surfaces `class-validator` arrays as `errors: string[]` for per-field UI mapping. Unknown errors are logged server-side and masked as a generic 500 (no message leak).
 - **204 stays 204.** The interceptor short-circuits empty bodies on `DELETE` so we don't violate HTTP semantics.
 - **Frontend permission UX.** `<PermissionGuard mode="hide">` removes a slot; `mode="disable"` clones the slot vnode with `disabled: true` (works for leaf components like buttons). Route-level guards send unauthorized users to `/forbidden`; unknown URLs go to a real `/not-found`.
@@ -247,13 +259,12 @@ Example payloads (wrapped by `{ data, message, statusCode }`):
 | ------ | ------------------- | -------------------------- | ------------------------------------------------------- |
 | POST   | `/api/auth/login`   | `{ email, password }`      | Returns `{ token, user }`; sets `perion.jwt` httpOnly cookie |
 
-A successful `POST /api/auth/login` returns the JWT, sets the `perion.jwt` httpOnly cookie, **and** seeds `req.session.user` so the existing session-cookie-based guards (PermissionsGuard, `/auth/me`) recognize the authenticated user. In this assignment implementation, session remains the primary authorization path; JWT is provided as an optional bonus output for Bearer-token clients.
+A successful `POST /api/auth/login` returns the JWT, sets the `perion.jwt` httpOnly cookie, **and** seeds `req.session.user` so the existing session-cookie-based authorization flow (`PermissionsMiddleware`, `/auth/me`) recognizes the authenticated user. In this assignment implementation, session remains the primary authorization path; JWT is provided as an optional bonus output for Bearer-token clients.
 
 Every response is wrapped as `{ data, message, statusCode }` (with optional `errors[]` on validation failures) by the `TransformInterceptor` and `HttpExceptionFilter`.
 
 ## Security notes
 
-- `POST /api/auth/login` is throttled (default: 5 attempts / 60 seconds per client key) via `@nestjs/throttler`.
 - Sessions currently use `express-session` MemoryStore, which is fine for local/demo usage but not for internet-exposed production deployments.
 - `docker-compose.yml` uses local/dev defaults and placeholder-style secrets for assignment convenience.
 - For internet-exposed production systems, use a persistent session store, rotate secrets via env management, and add layered controls (WAF/IP reputation, suspicious activity monitoring, and lockout/backoff policy).
@@ -262,7 +273,7 @@ Every response is wrapped as `{ data, message, statusCode }` (with optional `err
 
 | Layer    | Tool       | Files                                                                |
 | -------- | ---------- | -------------------------------------------------------------------- |
-| Backend  | Jest       | `backend/test/*.spec.ts` — UsersService, RolesService, PermissionsGuard, AuthService.login, HttpExceptionFilter |
+| Backend  | Jest       | `backend/test/*.spec.ts` — UsersService, RolesService, authorization layer, AuthService.login, HttpExceptionFilter |
 | Frontend | Vitest     | `frontend/src/**/*.test.ts` — base UI, PermissionGuard, UsersTable, BaseModal a11y |
 | E2E      | Playwright | `frontend/e2e/auth.spec.ts`, `frontend/e2e/permissions.spec.ts`        |
 

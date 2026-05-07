@@ -20,6 +20,112 @@ async function loginAs(
 }
 
 test.describe('Permission visibility', () => {
+  test('RBAC matrix for dashboard sections, actions, role editing, and header', async ({
+    page,
+  }) => {
+    const scenarios = [
+      {
+        email: 'admin@test.com' as const,
+        showUsersSection: true,
+        showRolesSection: true,
+        canCreateUser: true,
+        canEditUser: true,
+        canDeleteUser: true,
+        usersRoleColumnVisible: true,
+        editRoleButtonEnabled: true,
+      },
+      {
+        email: 'editor@test.com' as const,
+        showUsersSection: true,
+        showRolesSection: true,
+        canCreateUser: false,
+        canEditUser: true,
+        canDeleteUser: false,
+        usersRoleColumnVisible: true,
+        editRoleButtonEnabled: false,
+      },
+      {
+        email: 'viewer@test.com' as const,
+        showUsersSection: true,
+        showRolesSection: false,
+        canCreateUser: false,
+        canEditUser: false,
+        canDeleteUser: false,
+        usersRoleColumnVisible: false,
+        editRoleButtonEnabled: false,
+      },
+    ];
+
+    for (const scenario of scenarios) {
+      await loginAs(page, scenario.email);
+
+      // Header/nav matrix: all roles see current user + logout.
+      await expect(page.getByTestId('current-user-name')).toBeVisible();
+      await expect(page.getByTestId('logout-button')).toBeVisible();
+
+      const usersSection = page.getByTestId('section-users');
+      const rolesSection = page.getByTestId('section-roles');
+
+      if (scenario.showUsersSection) {
+        await expect(usersSection).toBeVisible();
+      } else {
+        await expect(usersSection).toHaveCount(0);
+      }
+
+      if (scenario.showRolesSection) {
+        await expect(rolesSection).toBeVisible();
+      } else {
+        await expect(rolesSection).toHaveCount(0);
+      }
+
+      if (scenario.canCreateUser) {
+        await expect(page.getByTestId('add-user-button')).toBeVisible();
+      } else {
+        await expect(page.getByTestId('add-user-button')).toHaveCount(0);
+      }
+
+      const editButtons = usersSection.locator('[data-test="edit-user"]');
+      const deleteButtons = usersSection.locator('[data-test="delete-user"]');
+      if (scenario.canEditUser) {
+        await expect(editButtons.first()).toBeVisible();
+      } else {
+        await expect(editButtons).toHaveCount(0);
+      }
+      if (scenario.canDeleteUser) {
+        await expect(deleteButtons.first()).toBeVisible();
+      } else {
+        await expect(deleteButtons).toHaveCount(0);
+      }
+
+      const usersHeader = usersSection.locator('thead');
+      if (scenario.usersRoleColumnVisible) {
+        await expect(usersHeader).toContainText('Role');
+      } else {
+        await expect(usersHeader).not.toContainText('Role');
+      }
+      if (scenario.canEditUser) {
+        await editButtons.first().click();
+        const editForm = page.getByTestId('edit-user-form');
+        await expect(editForm).toBeVisible();
+        await expect(editForm.getByLabel(/^Role/)).toBeEnabled();
+        await page.getByRole('button', { name: 'Cancel' }).click();
+        await expect(page.getByTestId('edit-user-form')).toHaveCount(0);
+      }
+
+      const roleEditButtons = page.locator('[data-test="edit-role"]');
+      if (!scenario.showRolesSection) {
+        await expect(roleEditButtons).toHaveCount(0);
+      } else if (scenario.editRoleButtonEnabled) {
+        await expect(roleEditButtons.first()).toBeEnabled();
+      } else {
+        await expect(roleEditButtons.first()).toBeDisabled();
+      }
+
+      await page.getByTestId('logout-button').click();
+      await expect(page).toHaveURL(/\/login$/);
+    }
+  });
+
   test('Admin sees Add User and the Edit Role button is enabled', async ({
     page,
   }) => {

@@ -1,6 +1,11 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { SUCCESS_MESSAGES } from '../src/constants/messages';
-import { SEEDED_PASSWORD, openPasswordLogin, submitPasswordLogin } from './helpers';
+import {
+  SEEDED_PASSWORD,
+  openPasswordLogin,
+  selectFirstAvailableRole,
+  submitPasswordLogin,
+} from './helpers';
 
 async function loginAsAdmin(page: Page): Promise<void> {
   await openPasswordLogin(page);
@@ -14,17 +19,7 @@ async function createUser(page: Page, name: string, email: string): Promise<void
 
   await page.getByTestId('add-user-name').locator('input').fill(name);
   await page.getByTestId('add-user-email').locator('input').fill(email);
-
-  const roleSelect = page.getByLabel(/^Role/);
-  const roleValue = await roleSelect.evaluate((node) => {
-    const select = node as HTMLSelectElement;
-    const roleOption = Array.from(select.options).find(
-      (option) => !option.disabled && option.value !== '',
-    );
-    return roleOption?.value ?? '';
-  });
-  expect(roleValue).not.toBe('');
-  await roleSelect.selectOption(roleValue);
+  await selectFirstAvailableRole(page);
 
   await page.getByRole('button', { name: 'Create user' }).click();
   await expect(

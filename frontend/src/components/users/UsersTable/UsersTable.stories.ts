@@ -100,6 +100,24 @@ const meta: Meta<typeof UsersTable> = {
   title: 'Users/UsersTable',
   component: UsersTable,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: `
+RBAC matrix reference for this table:
+
+| UI Element | Admin | Editor | Viewer |
+| --- | --- | --- | --- |
+| Users table | Visible | Visible | Visible |
+| Add User button | Enabled | Hidden | Hidden |
+| Edit button | Enabled | Enabled | Hidden |
+| Delete button | Enabled | Hidden | Hidden |
+| Change Role dropdown | Enabled (inside Edit modal) | Enabled (inside Edit modal) | Hidden |
+| Role column | Visible | Visible | Hidden |
+`,
+      },
+    },
+  },
 };
 export default meta;
 type Story = StoryObj<typeof UsersTable>;

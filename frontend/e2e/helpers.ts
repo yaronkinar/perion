@@ -18,3 +18,30 @@ export async function submitPasswordLogin(
   await page.getByTestId('login-password-input').locator('input').fill(password);
   await page.getByTestId('login-password-submit').click();
 }
+
+export async function selectFirstAvailableRole(
+  page: Page,
+  timeoutMs = 10_000,
+): Promise<string> {
+  const roleSelect = page.getByLabel(/^Role/);
+  await expect(roleSelect).toBeVisible({ timeout: timeoutMs });
+
+  const started = Date.now();
+  let roleValue = '';
+  while (!roleValue && Date.now() - started < timeoutMs) {
+    roleValue = await roleSelect.evaluate((node) => {
+      const select = node as HTMLSelectElement;
+      const firstRole = Array.from(select.options).find(
+        (option) => !option.disabled && option.value !== '',
+      );
+      return firstRole?.value ?? '';
+    });
+    if (!roleValue) {
+      await page.waitForTimeout(200);
+    }
+  }
+
+  expect(roleValue).not.toBe('');
+  await roleSelect.selectOption(roleValue);
+  return roleValue;
+}
