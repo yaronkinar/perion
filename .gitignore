@@ -30,6 +30,7 @@ Thumbs.db
 coverage/
 playwright-report/
 test-results/
+demo-output/
 .nyc_output/
 
 # Cache

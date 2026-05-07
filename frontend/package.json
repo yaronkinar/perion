@@ -13,6 +13,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "e2e": "playwright test",
+    "demo:video": "playwright test --config=playwright.demo.config.ts",
     "lint": "eslint \"src/**/*.{ts,vue}\""
   },
   "dependencies": {

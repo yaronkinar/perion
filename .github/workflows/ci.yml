@@ -97,6 +97,10 @@ jobs:
     name: e2e (playwright)
     runs-on: ubuntu-latest
     needs: [backend, frontend]
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v5
       - uses: docker/setup-buildx-action@v4
@@ -127,7 +131,7 @@ jobs:
           fi
 
       - name: Copy Playwright artifacts out of the e2e container
-        if: failure()
+        if: always()
         run: |
           cid=$(docker compose -f docker-compose.test.yml --profile e2e \
                   ps -aq e2e | head -n 1)
@@ -138,7 +142,7 @@ jobs:
           docker compose -f docker-compose.test.yml --profile e2e logs backend > backend.log || true
 
       - name: Upload Playwright artifacts
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v5
         with:
           name: playwright-report
@@ -150,6 +154,28 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      - name: Upload Playwright HTML report for Pages
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main' && hashFiles('playwright-report/index.html') != ''
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: playwright-report
+
       - name: Tear down
         if: always()
         run: docker compose -f docker-compose.test.yml --profile e2e down -v
+
+  deploy-e2e-report:
+    name: deploy e2e report (github pages)
+    runs-on: ubuntu-latest
+    needs: [e2e]
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.e2e.result != 'cancelled'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

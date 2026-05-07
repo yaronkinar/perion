@@ -214,6 +214,20 @@ docker compose -f docker-compose.test.yml --profile unit --profile e2e up --buil
 
 The same compose file is used by [.github/workflows/ci.yml](.github/workflows/ci.yml).
 
+### View Playwright HTML report on GitHub
+
+Every CI run uploads a `playwright-report` artifact (even on success).
+
+1. Open [Actions](https://github.com/yaronkinar/perion/actions).
+2. Click a `ci` workflow run.
+3. Scroll to **Artifacts** and download `playwright-report`.
+4. Extract it and open `playwright-report/index.html` in your browser.
+
+On pushes to `main`, CI also deploys the report to GitHub Pages (job: `deploy e2e report (github pages)`).
+
+- Pages URL: <https://yaronkinar.github.io/perion/>
+- In the run summary, open the `deploy e2e report (github pages)` job for the exact deployed URL.
+
 ### Run tests on the host
 
 ```bash
@@ -247,6 +261,31 @@ Report artifacts:
 - `backend/test-report.json`
 - `backend/coverage/lcov-report/index.html`
 - `frontend/test-report.json`
+
+## Demo video
+
+A scripted Playwright walkthrough that records a `.webm` video of the major flows (login, add/edit/delete user, edit role, and the Editor/Viewer permission UX). It runs against an already-running stack (e.g. `docker compose up`).
+
+```bash
+# 1. App must be running on :3000 (e.g. via `docker compose up`)
+# 2. Record the demo
+cd frontend
+npm run demo:video
+```
+
+The video is written to:
+
+[`frontend/demo-output/demo-Perion-RBAC---guided-demo-full-app-walkthrough-chromium/video.webm`](frontend/demo-output/demo-Perion-RBAC---guided-demo-full-app-walkthrough-chromium/video.webm)
+
+(`demo-output/` is gitignored, so the link only resolves locally after you've run the script.)
+
+Tweak the pacing with the `DEMO_SLOWMO` env var (milliseconds per action, default `250`):
+
+```bash
+DEMO_SLOWMO=400 npm run demo:video
+```
+
+Configuration lives in `frontend/playwright.demo.config.ts` and the script in `frontend/e2e-demo/demo.spec.ts`.
 
 ## Project layout
 
