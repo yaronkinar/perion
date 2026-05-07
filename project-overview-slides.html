@@ -122,8 +122,8 @@ Roles:
           <h3>Backend Request Flow (NestJS)</h3>
           <pre><code data-trim data-noescape>
 HTTP Request
+  -> PermissionsMiddleware (method+path -> required permission)
   -> Controller route handler
-  -> Guards (session + permission requirement)
   -> Service business logic
   -> Repository/TypeORM + PostgreSQL
   -> TransformInterceptor wraps success response
@@ -143,9 +143,10 @@ POST /api/auth/login
 -> set cookies and return authenticated user
 
 Protected path:
-Route + @RequirePermission(...)
--> PermissionsGuard reads req.session.user.permissions
--> allow or deny (default-deny for missing metadata)
+Request enters protected users/roles route
+-> PermissionsMiddleware resolves required permission by method+path
+-> reads req.session.user.permissions
+-> allow or deny
           </code></pre>
         </section>
 
@@ -168,14 +169,15 @@ Browser/LoginPage      Frontend API Service      Nest AuthController       AuthS
         <section data-transition="convex">
           <h3>Sequence: Users List Page Load</h3>
           <pre><code data-trim data-noescape>
-Browser/Dashboard   useDashboardPage   users.service   UsersController   PermissionsGuard   UsersService/DB
+Browser/Dashboard   useDashboardPage   users.service   PermissionsMiddleware   UsersController   UsersService/DB
       |                    |                |               |                 |                |
 1) route enter            |                |               |                 |                |
       |------------------->|               |               |                 |                |
 2) fetchUsers()           |               |               |                 |                |
-      |-------------------- GET /api/users ------------------------------->|                |
-      |                    |                |               |-- can(view_users)? ----------->|
-      |                    |                |               |<----------- allow/deny --------|
+      |-------------------- GET /api/users ------------------------------->|                 |
+      |                    |                |-- can(view_users)? -------->|                 |
+      |                    |                |<-------- allow/deny --------|                 |
+      |                    |                |----------------------------->|                 |
       |                    |                |               |------ query users ------------->|
       |                    |                |               |<---------- rows ---------------|
       |<-------- envelope { data: users[] }|               |                 |                |
@@ -186,12 +188,13 @@ Browser/Dashboard   useDashboardPage   users.service   UsersController   Permiss
         <section data-transition="zoom">
           <h3>Sequence: Update Role Permissions</h3>
           <pre><code data-trim data-noescape>
-Role Editor UI       roles.service      RolesController     PermissionsGuard      RolesService/DB
+Role Editor UI       roles.service      PermissionsMiddleware   RolesController   RolesService/DB
       |                   |                  |                    |                      |
 1) select role + permissions                |                    |                      |
 2) submit PUT /api/roles/:id -------------->|                    |                      |
-      |                   |                  |-- can(edit_roles)? ---------------------->|
-      |                   |                  |<------------------- allow/deny -----------|
+      |                   |-- can(edit_roles)? ------------------>|                      |
+      |                   |<------------------- allow/deny -------|                      |
+      |                   |-------------------------------------->|                      |
       |                   |                  |------ replace permission set ------------->|
       |                   |                  |<----------- updated role ------------------|
       |<-------- envelope { data: role } ---|                    |                      |
@@ -205,8 +208,8 @@ Role Editor UI       roles.service      RolesController     PermissionsGuard    
           <pre><code data-trim data-noescape>
 A) Permission denied (403)
 Browser -> PUT /api/roles/:id
-RolesController -> PermissionsGuard can(edit_roles)?
-Guard denies -> HttpExceptionFilter wraps:
+PermissionsMiddleware checks can(edit_roles)?
+PermissionsMiddleware denies -> HttpExceptionFilter wraps:
 { data: null, message: "Forbidden", statusCode: 403 }
 Frontend handles response and keeps restricted UI state
 
@@ -237,7 +240,7 @@ POST /api/auth/login
 -> returns { token, user }
 -> sets session cookie (+ perion.jwt cookie)
 
-PermissionsGuard reads permissions from session
+PermissionsMiddleware reads permissions from session
 for route authorization without per-request DB lookup.
           </code></pre>
         </section>
@@ -274,7 +277,7 @@ docker compose -f docker-compose.test.yml --profile e2e up --build
         <section data-transition="fade">
           <h3>Key Engineering Decisions</h3>
           <ul>
-            <li>Default-deny permission guard on backend handlers</li>
+            <li>Default-deny permission middleware on protected routes</li>
             <li>Consistent API envelope for success/errors</li>
             <li>Session snapshot model for fast authorization checks</li>
             <li>Docker-first local dev and CI parity</li>
