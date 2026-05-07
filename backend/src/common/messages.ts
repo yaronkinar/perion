@@ -10,7 +10,6 @@ export const MESSAGES = {
   INVALID_CREDENTIALS: 'Invalid email or password',
   MISSING_PERMISSION_METADATA:
     'Endpoint missing permission metadata; refusing access',
-  DEMO_AUTH_DISABLED: 'Demo authentication is disabled in this environment',
   ACCESS_DENIED: 'Access denied',
 } as const;
 

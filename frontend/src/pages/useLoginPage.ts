@@ -45,6 +45,9 @@ export interface UseLoginPageReturn {
   passwordErrors: Ref<Partial<Record<keyof LoginFormValues, string>>>;
   passwordSubmitting: Ref<boolean>;
   passwordError: Ref<string | null>;
+  handlePasswordEmailBlur: (_event?: FocusEvent) => Promise<unknown>;
+  handlePasswordBlur: (_event?: FocusEvent) => Promise<unknown>;
+  handlePasswordInput: () => Promise<unknown>;
   handlePasswordSubmit: (event?: Event) => Promise<unknown>;
 }
 
@@ -149,6 +152,20 @@ export function useLoginPage(
     }
   });
 
+  function handlePasswordEmailBlur(_event?: FocusEvent): Promise<unknown> {
+    passwordForm.setFieldTouched('email', true);
+    return passwordForm.validateField('email');
+  }
+
+  function handlePasswordBlur(_event?: FocusEvent): Promise<unknown> {
+    passwordForm.setFieldTouched('password', true);
+    return passwordForm.validateField('password');
+  }
+
+  function handlePasswordInput(): Promise<unknown> {
+    return passwordForm.validateField('password');
+  }
+
   return {
     availableUsers,
     loading,
@@ -167,6 +184,9 @@ export function useLoginPage(
     passwordErrors,
     passwordSubmitting,
     passwordError,
+    handlePasswordEmailBlur,
+    handlePasswordBlur,
+    handlePasswordInput,
     handlePasswordSubmit,
   };
 }

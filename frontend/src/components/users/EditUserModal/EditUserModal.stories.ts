@@ -48,9 +48,26 @@ const meta: Meta<typeof EditUserModal> = {
   component: EditUserModal,
   tags: ['autodocs'],
   decorators: [adminLoggedIn],
-  args: { open: true, roles, user: sampleUser },
+  args: { open: false, roles, user: sampleUser },
 };
 export default meta;
 type Story = StoryObj<typeof EditUserModal>;
 
-export const Open: Story = {};
+export const Playground: Story = {
+  render: (args) => ({
+    components: { EditUserModal },
+    setup: () => ({ args }),
+    template: `
+      <div>
+        <button
+          type="button"
+          class="mb-4 rounded bg-brand-600 px-3 py-2 text-sm font-medium text-white"
+          @click="args.open = true"
+        >
+          Open modal
+        </button>
+        <EditUserModal v-bind="args" @close="args.open = false" />
+      </div>
+    `,
+  }),
+};

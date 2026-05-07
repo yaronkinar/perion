@@ -12,9 +12,26 @@ const meta: Meta<typeof AddUserModal> = {
   title: 'Users/AddUserModal',
   component: AddUserModal,
   tags: ['autodocs'],
-  args: { open: true, roles },
+  args: { open: false, roles },
 };
 export default meta;
 type Story = StoryObj<typeof AddUserModal>;
 
-export const Open: Story = {};
+export const Playground: Story = {
+  render: (args) => ({
+    components: { AddUserModal },
+    setup: () => ({ args }),
+    template: `
+      <div>
+        <button
+          type="button"
+          class="mb-4 rounded bg-brand-600 px-3 py-2 text-sm font-medium text-white"
+          @click="args.open = true"
+        >
+          Open modal
+        </button>
+        <AddUserModal v-bind="args" @close="args.open = false" />
+      </div>
+    `,
+  }),
+};

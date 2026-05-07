@@ -1,6 +1,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 import { useAuthStore } from '@/stores/auth.store';
 import { useUsersStore } from '@/stores/users.store';
 import { useRolesStore } from '@/stores/roles.store';
@@ -8,7 +9,6 @@ import { useToastStore } from '@/stores/toast.store';
 import { usePermission } from '@/composables/usePermission';
 import { extractFieldErrors } from '@/services/http';
 import {
-  CONFIRM_MESSAGES,
   ERROR_MESSAGES,
   ROUTE_NAMES,
   SUCCESS_MESSAGES,
@@ -29,6 +29,7 @@ export function useDashboardPage() {
 
   const showAddUser = ref<boolean>(false);
   const editingUser = ref<User | null>(null);
+  const deletingUser = ref<User | null>(null);
   const editingRole = ref<Role | null>(null);
 
   const addUserServerErrors = ref<Record<string, string>>({});
@@ -89,13 +90,29 @@ export function useDashboardPage() {
     }
   }
 
-  async function handleDeleteUser(user: User): Promise<void> {
-    const confirmed = window.confirm(CONFIRM_MESSAGES.deleteUser(user.name));
-    if (!confirmed) return;
+  function requestDeleteUser(user: User): void {
+    deletingUser.value = user;
+  }
+
+  function cancelDeleteUser(): void {
+    deletingUser.value = null;
+  }
+
+  async function confirmDeleteUser(): Promise<void> {
+    if (!deletingUser.value) return;
     try {
-      await users.deleteUser(user.id);
+      await users.deleteUser(deletingUser.value.id);
       toast.success(SUCCESS_MESSAGES.userDeleted);
-    } catch {
+      deletingUser.value = null;
+    } catch (err) {
+      // If the row is stale and the user was already deleted elsewhere,
+      // treat it as success and refresh local state.
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        await users.fetchUsers();
+        toast.success(SUCCESS_MESSAGES.userDeleted);
+        deletingUser.value = null;
+        return;
+      }
       toast.error(usersState.error.value ?? ERROR_MESSAGES.failedToDeleteUser);
     }
   }
@@ -122,6 +139,7 @@ export function useDashboardPage() {
     rolesState,
     showAddUser,
     editingUser,
+    deletingUser,
     editingRole,
     addUserServerErrors,
     editUserServerErrors,
@@ -130,7 +148,9 @@ export function useDashboardPage() {
     handleLogout,
     handleCreateUser,
     handleUpdateUser,
-    handleDeleteUser,
+    requestDeleteUser,
+    cancelDeleteUser,
+    confirmDeleteUser,
     handleUpdateRole,
   };
 }

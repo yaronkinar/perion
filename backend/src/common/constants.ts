@@ -30,8 +30,6 @@ export const DEFAULT_CORS_ORIGIN = 'http://localhost:3000' as const;
 export const NODE_ENV_PRODUCTION = 'production' as const;
 export const MIN_SECRET_LENGTH = 32 as const;
 export const DEFAULT_BCRYPT_ROUNDS = 10 as const;
-export const DEFAULT_AUTH_LOGIN_RATE_LIMIT = 5 as const;
-export const DEFAULT_AUTH_LOGIN_RATE_TTL_MS = 60_000 as const;
 
 export const API_PREFIX = 'api' as const;
 
@@ -60,31 +58,15 @@ export function isProduction(): boolean {
   return process.env.NODE_ENV === NODE_ENV_PRODUCTION;
 }
 
-export function allowDemoAuth(): boolean {
-  return !isProduction();
-}
-
-function parsePositiveInt(
-  raw: string | undefined,
-  fallback: number,
-): number {
-  const parsed = Number(raw);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return fallback;
+/** Session/JWT `Secure` flag; override with COOKIE_SECURE=true|false. */
+export function useSecureCookies(): boolean {
+  const raw = process.env.COOKIE_SECURE?.trim().toLowerCase();
+  if (raw === '0' || raw === 'false' || raw === 'no') {
+    return false;
   }
-  return parsed;
+  if (raw === '1' || raw === 'true' || raw === 'yes') {
+    return true;
+  }
+  return isProduction();
 }
 
-export function getAuthLoginRateLimit(): number {
-  return parsePositiveInt(
-    process.env.AUTH_LOGIN_RATE_LIMIT,
-    DEFAULT_AUTH_LOGIN_RATE_LIMIT,
-  );
-}
-
-export function getAuthLoginRateTtlMs(): number {
-  return parsePositiveInt(
-    process.env.AUTH_LOGIN_RATE_TTL_MS,
-    DEFAULT_AUTH_LOGIN_RATE_TTL_MS,
-  );
-}

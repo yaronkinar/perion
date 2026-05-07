@@ -36,6 +36,7 @@ const {
   errors,
   roleOptions,
   statusOptions,
+  handleEmailBlur,
   handleSubmit,
 } = useAddUserModal(props, emit);
 </script>
@@ -63,6 +64,7 @@ const {
           :error="errors.email"
           autocomplete="off"
           :data-test="TEST_IDS.addUserEmail"
+          @blur="handleEmailBlur"
         />
         <BaseSelect
           v-model="status"
@@ -79,7 +81,7 @@ const {
           :error="errors.roleId"
         />
         <UiFlex variant="formActions">
-          <BaseButton variant="default" type="button" @click="emit('close')">
+          <BaseButton variant="default" type="button" :disabled="saving" @click="emit('close')">
             {{ COPY.cancel }}
           </BaseButton>
           <BaseButton variant="primary" type="submit" :loading="saving">

@@ -14,6 +14,7 @@ import {
   SESSION_COOKIE_NAME,
   SESSION_MAX_AGE_MS,
   isProduction,
+  useSecureCookies,
 } from './common/constants';
 import { ERRORS, LOG_MESSAGES } from './common/messages';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -59,7 +60,7 @@ async function bootstrap(): Promise<void> {
       cookie: {
         httpOnly: true,
         sameSite: 'lax',
-        secure: isProduction(),
+        secure: useSecureCookies(),
         maxAge: SESSION_MAX_AGE_MS,
       },
       name: SESSION_COOKIE_NAME,

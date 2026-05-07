@@ -8,6 +8,7 @@ import UiSurface from '@/components/ui/primitives/UiSurface.vue';
 import UiText from '@/components/ui/primitives/UiText.vue';
 import UsersTable from '@/components/users/UsersTable/UsersTable.vue';
 import AddUserModal from '@/components/users/AddUserModal/AddUserModal.vue';
+import DeleteUserModal from '@/components/users/DeleteUserModal/DeleteUserModal.vue';
 import EditUserModal from '@/components/users/EditUserModal/EditUserModal.vue';
 import RolesList from '@/components/roles/RolesList/RolesList.vue';
 import EditRoleModal from '@/components/roles/EditRoleModal/EditRoleModal.vue';
@@ -20,6 +21,7 @@ const {
   rolesState,
   showAddUser,
   editingUser,
+  deletingUser,
   editingRole,
   addUserServerErrors,
   editUserServerErrors,
@@ -28,7 +30,9 @@ const {
   handleLogout,
   handleCreateUser,
   handleUpdateUser,
-  handleDeleteUser,
+  requestDeleteUser,
+  cancelDeleteUser,
+  confirmDeleteUser,
   handleUpdateRole,
 } = useDashboardPage();
 </script>
@@ -60,7 +64,7 @@ const {
           :users="usersState.users.value"
           :loading="usersState.loading.value"
           @edit="(u) => (editingUser = u)"
-          @delete="handleDeleteUser"
+          @delete="requestDeleteUser"
         />
         <UiText v-if="usersState.error.value" variant="errorMt" role="alert">
           {{ usersState.error.value }}
@@ -108,6 +112,14 @@ const {
       :server-errors="editUserServerErrors"
       @close="editingUser = null"
       @submit="handleUpdateUser"
+    />
+
+    <DeleteUserModal
+      :open="deletingUser !== null"
+      :user="deletingUser"
+      :saving="usersState.saving.value"
+      @close="cancelDeleteUser"
+      @confirm="confirmDeleteUser"
     />
 
     <EditRoleModal

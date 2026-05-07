@@ -34,6 +34,7 @@ export interface UseEditUserModalReturn {
   canChangeRole: ComputedRef<boolean>;
   roleOptions: ComputedRef<SelectOption<string>[]>;
   statusOptions: SelectOption<UserStatus>[];
+  handleEmailBlur: () => Promise<unknown>;
   handleSubmit: (event?: Event) => Promise<unknown>;
 }
 
@@ -123,6 +124,10 @@ export function useEditUserModal(
     emit('submit', { id: props.user.id, dto });
   });
 
+  function handleEmailBlur(): Promise<unknown> {
+    return form.validateField('email');
+  }
+
   return {
     name,
     email,
@@ -132,6 +137,7 @@ export function useEditUserModal(
     canChangeRole,
     roleOptions,
     statusOptions,
+    handleEmailBlur,
     handleSubmit,
   };
 }

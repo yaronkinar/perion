@@ -37,6 +37,9 @@ const {
   passwordErrors,
   passwordSubmitting,
   passwordError,
+  handlePasswordEmailBlur,
+  handlePasswordBlur,
+  handlePasswordInput,
   handlePasswordSubmit,
 } = useLoginPage();
 
@@ -94,6 +97,9 @@ const hasDemoUsers = computed(() => availableUsers.value.length > 0);
           :errors="passwordErrors"
           :submitting="passwordSubmitting"
           :server-error="passwordError"
+          @email-blur="handlePasswordEmailBlur"
+          @password-blur="handlePasswordBlur"
+          @password-input="handlePasswordInput"
           @submit="handlePasswordSubmit"
         />
       </div>

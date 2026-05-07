@@ -75,6 +75,19 @@ describe('useAddUserModal (VeeValidate + Zod)', () => {
     expect(h.result.errors.value.email).toBe('Email is invalid');
   });
 
+  it('validates email on blur without submit', async () => {
+    const h = mountHarness();
+    await nextTick();
+    h.result.email.value = 'broken';
+    await nextTick();
+
+    await h.result.handleEmailBlur();
+    await nextTick();
+
+    expect(h.result.errors.value.email).toBe('Email is invalid');
+    expect(h.emit).not.toHaveBeenCalled();
+  });
+
   it('emits a validated CreateUserDto when the form is valid', async () => {
     const h = mountHarness();
     await nextTick();

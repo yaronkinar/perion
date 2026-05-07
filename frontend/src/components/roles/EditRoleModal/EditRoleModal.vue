@@ -105,7 +105,7 @@ const {
         </UiGrid>
 
         <UiFlex variant="formActions">
-          <BaseButton variant="default" type="button" @click="emit('close')">
+          <BaseButton variant="default" type="button" :disabled="saving" @click="emit('close')">
             {{ COPY.cancel }}
           </BaseButton>
 

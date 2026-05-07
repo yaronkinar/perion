@@ -28,6 +28,7 @@ export interface UseAddUserModalReturn {
   errors: ComputedRef<Partial<Record<FieldKey, string>>>;
   roleOptions: ComputedRef<SelectOption<string>[]>;
   statusOptions: SelectOption<UserStatus>[];
+  handleEmailBlur: () => Promise<unknown>;
   handleSubmit: (event?: Event) => Promise<unknown>;
 }
 
@@ -103,6 +104,10 @@ export function useAddUserModal(
     emit('submit', dto);
   });
 
+  function handleEmailBlur(): Promise<unknown> {
+    return form.validateField('email');
+  }
+
   return {
     name,
     email,
@@ -111,6 +116,7 @@ export function useAddUserModal(
     errors,
     roleOptions,
     statusOptions,
+    handleEmailBlur,
     handleSubmit,
   };
 }

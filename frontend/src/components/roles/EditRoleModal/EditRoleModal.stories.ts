@@ -25,9 +25,26 @@ const meta: Meta<typeof EditRoleModal> = {
   title: 'Roles/EditRoleModal',
   component: EditRoleModal,
   tags: ['autodocs'],
-  args: { open: true, role: editorRole, allPermissions },
+  args: { open: false, role: editorRole, allPermissions },
 };
 export default meta;
 type Story = StoryObj<typeof EditRoleModal>;
 
-export const Open: Story = {};
+export const Playground: Story = {
+  render: (args) => ({
+    components: { EditRoleModal },
+    setup: () => ({ args }),
+    template: `
+      <div>
+        <button
+          type="button"
+          class="mb-4 rounded bg-brand-600 px-3 py-2 text-sm font-medium text-white"
+          @click="args.open = true"
+        >
+          Open modal
+        </button>
+        <EditRoleModal v-bind="args" @close="args.open = false" />
+      </div>
+    `,
+  }),
+};

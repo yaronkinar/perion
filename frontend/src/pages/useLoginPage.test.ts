@@ -220,6 +220,70 @@ describe('useLoginPage', () => {
       expect(result.passwordErrors.value.email).toBeTruthy();
     });
 
+    it('validates email on blur without submitting the form', async () => {
+      const auth = useAuthStore();
+      auth.availableUsers = [...seededUsers];
+      auth.fetchAvailableUsers = vi.fn(async () => undefined);
+      auth.loginWithPassword = vi.fn();
+
+      const { result } = mountHarness(fakeRouter());
+      await nextTick();
+
+      result.setMode('password');
+      result.passwordEmail.value = 'not-an-email';
+      await nextTick();
+
+      await result.handlePasswordEmailBlur();
+      await nextTick();
+
+      expect(result.passwordErrors.value.email).toBe('Email is invalid');
+      expect(auth.loginWithPassword).not.toHaveBeenCalled();
+    });
+
+    it('validates password on blur without submitting the form', async () => {
+      const auth = useAuthStore();
+      auth.availableUsers = [...seededUsers];
+      auth.fetchAvailableUsers = vi.fn(async () => undefined);
+      auth.loginWithPassword = vi.fn();
+
+      const { result } = mountHarness(fakeRouter());
+      await nextTick();
+
+      result.setMode('password');
+      result.passwordPassword.value = 'short';
+      await nextTick();
+
+      await result.handlePasswordBlur();
+      await nextTick();
+
+      expect(result.passwordErrors.value.password).toBe(
+        'Password must be at least 8 characters',
+      );
+      expect(auth.loginWithPassword).not.toHaveBeenCalled();
+    });
+
+    it('validates password length while typing without submitting', async () => {
+      const auth = useAuthStore();
+      auth.availableUsers = [...seededUsers];
+      auth.fetchAvailableUsers = vi.fn(async () => undefined);
+      auth.loginWithPassword = vi.fn();
+
+      const { result } = mountHarness(fakeRouter());
+      await nextTick();
+
+      result.setMode('password');
+      result.passwordPassword.value = 'short';
+      await nextTick();
+
+      await result.handlePasswordInput();
+      await nextTick();
+
+      expect(result.passwordErrors.value.password).toBe(
+        'Password must be at least 8 characters',
+      );
+      expect(auth.loginWithPassword).not.toHaveBeenCalled();
+    });
+
     it('rejects a short password and never calls loginWithPassword', async () => {
       const auth = useAuthStore();
       auth.availableUsers = [...seededUsers];

@@ -1,25 +1,21 @@
 import {
   Body,
   Controller,
-  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
   Post,
   Req,
   Res,
-  UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import {
   AUTH_ENDPOINTS,
   JWT_COOKIE_MAX_AGE_MS,
   JWT_COOKIE_NAME,
   ROUTES,
-  allowDemoAuth,
-  isProduction,
+  useSecureCookies,
 } from '../common/constants';
 import { MESSAGES } from '../common/messages';
 import { AuthService, PublicUserSummary } from './auth.service';
@@ -34,9 +30,6 @@ export class AuthController {
 
   @Get(AUTH_ENDPOINTS.USERS)
   listUsers(): Promise<PublicUserSummary[]> {
-    if (!allowDemoAuth()) {
-      throw new ForbiddenException(MESSAGES.DEMO_AUTH_DISABLED);
-    }
     return this.authService.listPublicUsers();
   }
 
@@ -46,14 +39,10 @@ export class AuthController {
     @Body() dto: SelectUserDto,
     @Req() req: Request,
   ): Promise<SessionUser> {
-    if (!allowDemoAuth()) {
-      throw new ForbiddenException(MESSAGES.DEMO_AUTH_DISABLED);
-    }
     return this.authService.selectUser(dto.userId, req.session);
   }
 
   @Post(AUTH_ENDPOINTS.LOGIN)
-  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() dto: LoginDto,
@@ -72,7 +61,7 @@ export class AuthController {
     res.cookie(JWT_COOKIE_NAME, result.token, {
       httpOnly: true,
       sameSite: 'lax',
-      secure: isProduction(),
+      secure: useSecureCookies(),
       maxAge: JWT_COOKIE_MAX_AGE_MS,
     });
     return result;
@@ -85,7 +74,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ ok: true }> {
     await this.authService.logout(req.session);
-    res.clearCookie(JWT_COOKIE_NAME);
+    res.clearCookie(JWT_COOKIE_NAME, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: useSecureCookies(),
+    });
     return { ok: true };
   }
 

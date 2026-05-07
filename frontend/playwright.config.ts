@@ -9,8 +9,12 @@ export default defineConfig({
   fullyParallel: false,
   retries: 0,
   reporter: process.env.CI
-    ? [['list'], ['json', { outputFile: 'playwright-report.json' }]]
-    : [['list']],
+    ? [
+        ['list'],
+        ['json', { outputFile: 'playwright-report.json' }],
+        ['html', { open: 'never' }],
+      ]
+    : [['list'], ['html', { open: 'on-failure' }]],
   use: {
     baseURL,
     headless: true,

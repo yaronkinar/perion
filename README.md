@@ -1,4 +1,4 @@
-# Perion RBAC
+# Perion
 
 A production-quality permission-based UI management system.
 
@@ -125,15 +125,14 @@ Storybook runs at http://localhost:6006.
 | `JWT_SECRET`      | HMAC secret for JWT signing                          | always; ≥32 chars in prod |
 | `CORS_ORIGIN`     | Allowed CORS origin (the frontend URL)               | optional (defaults `http://localhost:3000`) |
 | `JWT_TTL`         | JWT lifetime, e.g. `1h`, `30m`                       | optional (default `1h`) |
-| `NODE_ENV`        | `development` enables the demo "pick a user" flow    | optional (default dev) |
-| `AUTH_LOGIN_RATE_LIMIT` | Max login attempts per window for `POST /api/auth/login` | optional (default `5`) |
-| `AUTH_LOGIN_RATE_TTL_MS` | Login throttle window in milliseconds                    | optional (default `60000`) |
+| `NODE_ENV`        | `production` enables trust-proxy behavior; demo pick-a-user stays on | optional (`development` in local Node) |
+| `COOKIE_SECURE`   | `true` / `false` — session/JWT `Secure` flag (default: on when `NODE_ENV=production`) | optional; compose sets `false` for HTTP localhost |
 | `PORT`            | Backend port                                         | optional (default 4000) |
 
 In production (`NODE_ENV=production`):
 - TypeORM `synchronize` is **off** (use migrations).
-- Cookies are issued with `secure: true` (HTTPS only).
-- The demo `GET /api/auth/users` and `POST /api/auth/select` endpoints return 403.
+- Session and JWT cookies use `Secure: true` by default (**HTTPS only**). Set `COOKIE_SECURE=false` only for deliberate HTTP deployments (see `docker-compose.yml`).
+- The demo `GET /api/auth/users` and `POST /api/auth/select` endpoints remain available (protect the deployment with network policy or auth gateway if needed).
 - Both secrets are validated for minimum length at boot.
 
 ## Permission model
@@ -181,7 +180,7 @@ Route-level enforcement: routes can declare `meta.requireAny: PermissionAction[]
 
 | Method | Path                | Body                       | Notes                                                   |
 | ------ | ------------------- | -------------------------- | ------------------------------------------------------- |
-| POST   | `/api/auth/login`   | `{ email, password }`      | Returns `{ token, user }`; sets `perion.jwt` httpOnly cookie; rate-limited (429 on excess) |
+| POST   | `/api/auth/login`   | `{ email, password }`      | Returns `{ token, user }`; sets `perion.jwt` httpOnly cookie |
 
 A successful `POST /api/auth/login` returns the JWT, sets the `perion.jwt` httpOnly cookie, **and** seeds `req.session.user` so the existing session-cookie-based guards (PermissionsGuard, `/auth/me`) recognize the authenticated user without any further integration. Bearer-token clients can use the returned `token` directly.
 
@@ -189,9 +188,8 @@ Every response is wrapped as `{ data, message, statusCode }` (with optional `err
 
 ## Security notes
 
-- `POST /api/auth/login` is now protected by endpoint-level throttling using Nest's `ThrottlerGuard` (`5` attempts per `60s` by default). Limits are configurable via `AUTH_LOGIN_RATE_LIMIT` and `AUTH_LOGIN_RATE_TTL_MS`.
-- The throttler is intentionally bound only to the login route, so normal authenticated app traffic and demo endpoints are unaffected.
-- For internet-exposed production systems, keep this throttle and add layered controls (WAF/IP reputation, suspicious activity monitoring, and optional account lockout/backoff policy).
+- `POST /api/auth/login` has no built-in request throttle in this codebase.
+- For internet-exposed production systems, add layered controls (WAF/IP reputation, suspicious activity monitoring, and optional account lockout/backoff policy).
 
 ## Tests
 

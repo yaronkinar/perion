@@ -27,6 +27,9 @@ export const TEST_IDS = {
   addUserName: 'add-user-name',
   addUserEmail: 'add-user-email',
   editUserForm: 'edit-user-form',
+  deleteUserModalMessage: 'delete-user-modal-message',
+  deleteUserCancel: 'delete-user-cancel',
+  deleteUserConfirm: 'delete-user-confirm',
   usersTable: 'users-table',
 } as const;
 

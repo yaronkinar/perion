@@ -39,6 +39,7 @@ const {
   canChangeRole,
   roleOptions,
   statusOptions,
+  handleEmailBlur,
   handleSubmit,
 } = useEditUserModal(props, emit);
 </script>
@@ -65,6 +66,7 @@ const {
           required
           :error="errors.email"
           autocomplete="off"
+          @blur="handleEmailBlur"
         />
         <BaseSelect
           v-model="status"
@@ -82,7 +84,7 @@ const {
           {{ COPY.cannotChangeRoles }}
         </UiText>
         <UiFlex variant="formActions">
-          <BaseButton variant="default" type="button" @click="emit('close')">
+          <BaseButton variant="default" type="button" :disabled="saving" @click="emit('close')">
             {{ COPY.cancel }}
           </BaseButton>
           <BaseButton variant="primary" type="submit" :loading="saving">
