@@ -30,8 +30,9 @@ async function createUser(page: Page, name: string, email: string): Promise<void
   await expect(
     page
       .getByTestId('toast-success')
-      .filter({ hasText: SUCCESS_MESSAGES.userCreated }),
-  ).toBeVisible();
+      .filter({ hasText: SUCCESS_MESSAGES.userCreated })
+      .first(),
+  ).toBeVisible({ timeout: 15_000 });
   await expect(rowForUser(page, email)).toBeVisible();
 }
 

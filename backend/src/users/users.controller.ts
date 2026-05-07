@@ -18,9 +18,9 @@ import { ROUTES } from '../common/constants';
 import { MESSAGES } from '../common/messages';
 import { RequirePermission } from '../permissions/permissions.decorator';
 import { PermissionsGuard } from '../permissions/permissions.guard';
-import type { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import type { UserListItemDto } from './dto/user-list-item.dto';
-import type { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import type { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
