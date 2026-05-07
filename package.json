@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "present": "npx --yes serve . -l 50524"
+  },
   "devDependencies": {
     "@biomejs/biome": "2.4.14"
   }

@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perion - Code Overview</title>
+    <link rel="stylesheet" href="https://unpkg.com/reveal.js/dist/reveal.css" />
+    <link rel="stylesheet" href="https://unpkg.com/reveal.js/dist/theme/black.css" />
+    <style>
+      .reveal section code {
+        font-size: 0.78em;
+      }
+      .reveal section pre {
+        width: 100%;
+      }
+      .small {
+        font-size: 0.72em;
+      }
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-items: start;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-transition="zoom">
+          <h2>Perion</h2>
+          <h4>Code Overview</h4>
+          <p class="small">Vue 3 + NestJS + PostgreSQL</p>
+        </section>
+
+        <section data-transition="fade">
+          <h3>High-Level Architecture</h3>
+          <div class="two-col">
+            <div>
+              <h4>Frontend</h4>
+              <ul>
+                <li>Vue 3 + TypeScript + Pinia</li>
+                <li>Vite build + dev proxy</li>
+                <li>Permission-driven UI guards</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Backend</h4>
+              <ul>
+                <li>NestJS + TypeORM</li>
+                <li>Session auth (+ bonus JWT login)</li>
+                <li>Centralized error/success envelope</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section data-transition="convex">
+          <h3>Repository Layout</h3>
+          <pre><code data-trim data-noescape>
+backend/
+  src/
+    auth/ users/ roles/ permissions/ seed/
+frontend/
+  src/
+    components/ pages/ router/ services/ stores/ schemas/
+  e2e/
+.github/workflows/
+docker-compose.yml
+docker-compose.test.yml
+          </code></pre>
+        </section>
+
+        <section data-transition="fade">
+          <h3>Frontend Flow (Runtime)</h3>
+          <pre><code data-trim data-noescape>
+1) Router enters page (e.g. login/dashboard)
+2) Page composable runs (useLoginPage/useDashboardPage)
+3) Service calls /api/* through Vite proxy
+4) Pinia/session state updates from API envelope.data
+5) Components re-render with derived permission state
+6) Guarded UI paths are hidden/disabled declaratively
+          </code></pre>
+          <p class="small">Data flow: Router -> Composable -> Service -> Store -> View.</p>
+        </section>
+
+        <section data-transition="concave">
+          <h3>Frontend Permission + Form Flow</h3>
+          <pre><code data-trim data-noescape>
+Permission checks:
+- usePermission().can(action)
+- PermissionGuard(action, mode)
+- Router meta.requireAny for route-level blocking
+
+Form lifecycle:
+- VeeValidate + Zod schema validates client-side
+- submit -> backend DTO/class-validator checks
+- errors[] mapped back to field-level UI state
+          </code></pre>
+        </section>
+
+        <section data-transition="concave">
+          <h3>Permission Model</h3>
+          <pre><code data-trim data-noescape>
+Permissions:
+- view_users
+- create_user
+- edit_user
+- delete_user
+- view_roles
+- edit_roles
+- change_role
+
+Roles:
+- Admin  -> all
+- Editor -> view_users, edit_user, view_roles, change_role
+- Viewer -> view_users
+          </code></pre>
+        </section>
+
+        <section data-transition="fade">
+          <h3>Backend Request Flow (NestJS)</h3>
+          <pre><code data-trim data-noescape>
+HTTP Request
+  -> Controller route handler
+  -> Guards (session + permission requirement)
+  -> Service business logic
+  -> Repository/TypeORM + PostgreSQL
+  -> TransformInterceptor wraps success response
+  -> HttpExceptionFilter wraps and sanitizes failures
+  -> HTTP Response { data, message, statusCode, errors? }
+          </code></pre>
+        </section>
+
+        <section data-transition="zoom">
+          <h3>Backend Auth + Authorization Path</h3>
+          <pre><code data-trim data-noescape>
+Login path:
+POST /api/auth/login
+-> verify email/password
+-> create JWT (bonus path)
+-> seed req.session.user snapshot (role + permissions)
+-> set cookies and return authenticated user
+
+Protected path:
+Route + @RequirePermission(...)
+-> PermissionsGuard reads req.session.user.permissions
+-> allow or deny (default-deny for missing metadata)
+          </code></pre>
+        </section>
+
+        <section data-transition="fade">
+          <h3>Sequence: Login (Email + Password)</h3>
+          <pre><code data-trim data-noescape>
+Browser/LoginPage      Frontend API Service      Nest AuthController       AuthService/DB
+      |                        |                        |                         |
+1) user submits credentials    |                        |                         |
+      |------ POST /api/auth/login -------------------> |                         |
+      |                        |                        |-- verify user + hash -->|
+      |                        |                        |<----- user row ----------|
+      |                        |                        |-- create JWT + session -->|
+      |<----- {data:{token,user}} + cookies -----------|                         |
+2) store session user + permissions snapshot
+3) router pushes to dashboard; guarded UI now enabled
+          </code></pre>
+        </section>
+
+        <section data-transition="convex">
+          <h3>Sequence: Users List Page Load</h3>
+          <pre><code data-trim data-noescape>
+Browser/Dashboard   useDashboardPage   users.service   UsersController   PermissionsGuard   UsersService/DB
+      |                    |                |               |                 |                |
+1) route enter            |                |               |                 |                |
+      |------------------->|               |               |                 |                |
+2) fetchUsers()           |               |               |                 |                |
+      |-------------------- GET /api/users ------------------------------->|                |
+      |                    |                |               |-- can(view_users)? ----------->|
+      |                    |                |               |<----------- allow/deny --------|
+      |                    |                |               |------ query users ------------->|
+      |                    |                |               |<---------- rows ---------------|
+      |<-------- envelope { data: users[] }|               |                 |                |
+3) table renders; Viewer role gets user list without role field
+          </code></pre>
+        </section>
+
+        <section data-transition="zoom">
+          <h3>Sequence: Update Role Permissions</h3>
+          <pre><code data-trim data-noescape>
+Role Editor UI       roles.service      RolesController     PermissionsGuard      RolesService/DB
+      |                   |                  |                    |                      |
+1) select role + permissions                |                    |                      |
+2) submit PUT /api/roles/:id -------------->|                    |                      |
+      |                   |                  |-- can(edit_roles)? ---------------------->|
+      |                   |                  |<------------------- allow/deny -----------|
+      |                   |                  |------ replace permission set ------------->|
+      |                   |                  |<----------- updated role ------------------|
+      |<-------- envelope { data: role } ---|                    |                      |
+3) frontend refreshes roles state and reflects new matrix
+4) existing logged-in sessions keep old snapshot until refresh/login
+          </code></pre>
+        </section>
+
+        <section data-transition="concave">
+          <h3>Sequence: Error Paths (403 + 400)</h3>
+          <pre><code data-trim data-noescape>
+A) Permission denied (403)
+Browser -> PUT /api/roles/:id
+RolesController -> PermissionsGuard can(edit_roles)?
+Guard denies -> HttpExceptionFilter wraps:
+{ data: null, message: "Forbidden", statusCode: 403 }
+Frontend handles response and keeps restricted UI state
+
+B) Validation failure (400)
+Browser -> POST /api/users (invalid payload)
+DTO/class-validator throws validation errors[]
+HttpExceptionFilter returns envelope with errors[]
+Frontend maps errors[] -> setFieldError(field, message)
+User sees inline field-level messages in modal form
+          </code></pre>
+        </section>
+
+        <section data-transition="slide">
+          <h3>Frontend Guard Pattern</h3>
+          <pre><code class="language-vue" data-trim data-noescape>
+&lt;PermissionGuard action="create_user" mode="disable"&gt;
+  &lt;button class="btn-primary"&gt;Add User&lt;/button&gt;
+&lt;/PermissionGuard&gt;
+          </code></pre>
+          <p class="small">UI behavior is declarative: hide or disable actions by permission.</p>
+        </section>
+
+        <section data-transition="fade">
+          <h3>Backend Auth + Session Snapshot</h3>
+          <pre><code class="language-ts" data-trim data-noescape>
+// Login seeds req.session.user with role + permission snapshot
+POST /api/auth/login
+-> returns { token, user }
+-> sets session cookie (+ perion.jwt cookie)
+
+PermissionsGuard reads permissions from session
+for route authorization without per-request DB lookup.
+          </code></pre>
+        </section>
+
+        <section data-transition="zoom">
+          <h3>Core API Surface</h3>
+          <pre><code data-trim data-noescape>
+GET    /api/users         (view_users)
+POST   /api/users         (create_user)
+PUT    /api/users/:id     (edit_user)
+DELETE /api/users/:id     (delete_user)
+GET    /api/roles         (view_roles)
+PUT    /api/roles/:id     (edit_roles)
+GET    /api/auth/me       (session)
+POST   /api/auth/select   (dev-only)
+POST   /api/auth/login    (email/password + JWT)
+          </code></pre>
+        </section>
+
+        <section data-transition="convex">
+          <h3>Testing Strategy</h3>
+          <ul>
+            <li>Backend unit tests (Jest)</li>
+            <li>Frontend unit tests (Vitest)</li>
+            <li>E2E flows (Playwright)</li>
+            <li>CI runs all suites via Docker Compose</li>
+          </ul>
+          <pre><code data-trim data-noescape>
+docker compose -f docker-compose.test.yml --profile unit up --build
+docker compose -f docker-compose.test.yml --profile e2e up --build
+          </code></pre>
+        </section>
+
+        <section data-transition="fade">
+          <h3>Key Engineering Decisions</h3>
+          <ul>
+            <li>Default-deny permission guard on backend handlers</li>
+            <li>Consistent API envelope for success/errors</li>
+            <li>Session snapshot model for fast authorization checks</li>
+            <li>Docker-first local dev and CI parity</li>
+          </ul>
+        </section>
+
+        <section data-transition="convex">
+          <h3>Observability + Debugging</h3>
+          <pre><code data-trim data-noescape>
+Local test triage:
+- Backend:  cd backend  && npm test
+- Frontend: cd frontend && npm test
+- E2E:      cd frontend && npm run e2e
+
+Useful artifacts:
+- backend/test-report.json
+- backend/coverage/lcov-report/index.html
+- frontend/test-report.json
+- playwright-report/index.html
+
+CI failure workflow:
+1) Open GitHub Actions "ci" run
+2) Inspect failing job logs (unit vs e2e)
+3) Download playwright-report artifact
+4) Reproduce with docker-compose.test.yml profile
+          </code></pre>
+        </section>
+
+        <section data-transition="zoom">
+          <h2>Thank You</h2>
+          <p>Questions?</p>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/reveal.js/dist/reveal.js"></script>
+    <script>
+      Reveal.initialize({
+        hash: true,
+        transition: "slide",
+        backgroundTransition: "fade",
+        slideNumber: true
+      });
+    </script>
+  </body>
+</html>
