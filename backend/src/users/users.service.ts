@@ -3,14 +3,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { Role, RoleName } from '../roles/entities/role.entity';
 import {
   PG_ERROR_CODE_UNIQUE_VIOLATION,
 } from '../common/constants';
 import { ERRORS } from '../common/messages';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserListItemDto } from './dto/user-list-item.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
@@ -18,32 +18,39 @@ const VIEWER_ROLE: RoleName = 'Viewer';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
-    @InjectRepository(Role)
-    private readonly rolesRepository: Repository<Role>,
-  ) {}
+  private readonly usersRepository: Repository<User>;
+  private readonly rolesRepository: Repository<Role>;
 
-  async findAll(currentUserRole: RoleName): Promise<User[]> {
+  constructor(private readonly dataSource: DataSource) {
+    this.usersRepository = this.dataSource.getRepository(User);
+    this.rolesRepository = this.dataSource.getRepository(Role);
+  }
+
+  async findAll(currentUserRole: RoleName): Promise<UserListItemDto[]> {
     const users = await this.usersRepository.find({
       relations: { role: { permissions: true } },
       order: { name: 'ASC' },
     });
 
     if (currentUserRole === VIEWER_ROLE) {
-      return users.map((user) => {
-        const stripped: User = {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          status: user.status,
-        } as User;
-        return stripped;
-      });
+      return users.map((user) => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        status: user.status,
+      }));
     }
 
-    return users;
+    return users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      status: user.status,
+      role: {
+        id: user.role.id,
+        name: user.role.name,
+      },
+    }));
   }
 
   async findOne(id: string): Promise<User> {

@@ -28,14 +28,16 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://perion:secret@postgres:5432/perion_rbac
+      DATABASE_URL: ${DATABASE_URL:-postgresql://perion:secret@postgres:5432/perion_rbac}
       # NODE_ENV=production + trust proxy. COOKIE_SECURE=false so sessions work on
-      # http://localhost (see backend `useSecureCookies`). Demo auth stays enabled.
+      # http://localhost (see backend `useSecureCookies`).
       NODE_ENV: ${BACKEND_NODE_ENV:-production}
       PORT: "4000"
-      CORS_ORIGIN: http://localhost:3000
-      SESSION_SECRET: dev-session-secret-needs-32-chars-minimum
-      JWT_SECRET: dev-jwt-secret-also-needs-32-chars-minimum
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      SESSION_SECRET: ${SESSION_SECRET:-local-dev-session-secret-change-me}
+      JWT_SECRET: ${JWT_SECRET:-local-dev-jwt-secret-change-me-1234}
+      AUTH_LOGIN_THROTTLE_LIMIT: ${AUTH_LOGIN_THROTTLE_LIMIT:-5}
+      AUTH_LOGIN_THROTTLE_TTL_SECONDS: ${AUTH_LOGIN_THROTTLE_TTL_SECONDS:-60}
       # Browsers omit Secure cookies on plain HTTP — required for localhost compose.
       COOKIE_SECURE: "false"
 

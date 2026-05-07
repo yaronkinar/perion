@@ -10,7 +10,6 @@ export const useRolesStore = defineStore('roles', () => {
   const loading = ref(false);
   const saving = ref(false);
   const error = ref<string | null>(null);
-
   const allPermissions = computed<Permission[]>(() => {
     const seen = new Map<string, Permission>();
     for (const role of roles.value) {

@@ -1,5 +1,5 @@
 import { computed, ref, watch } from 'vue';
-import { PERMISSION_LABELS } from '@/constants/permissions';
+import { permissionLabel } from '@/constants/permissions';
 import { COPY } from '@/constants/messages';
 import type { Permission, Role, UpdateRoleDto } from '@/types/role.types';
 
@@ -34,7 +34,7 @@ export function useEditRoleModal(
 
   const orderedPermissions = computed<Permission[]>(() =>
     [...props.allPermissions].sort((a, b) =>
-      PERMISSION_LABELS[a.name].localeCompare(PERMISSION_LABELS[b.name]),
+      permissionLabel(a.name).localeCompare(permissionLabel(b.name)),
     ),
   );
 

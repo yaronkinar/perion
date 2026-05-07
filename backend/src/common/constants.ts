@@ -30,6 +30,8 @@ export const DEFAULT_CORS_ORIGIN = 'http://localhost:3000' as const;
 export const NODE_ENV_PRODUCTION = 'production' as const;
 export const MIN_SECRET_LENGTH = 32 as const;
 export const DEFAULT_BCRYPT_ROUNDS = 10 as const;
+export const DEFAULT_AUTH_LOGIN_THROTTLE_LIMIT = 5 as const;
+export const DEFAULT_AUTH_LOGIN_THROTTLE_TTL_SECONDS = 60 as const;
 
 export const API_PREFIX = 'api' as const;
 
@@ -56,6 +58,32 @@ export const PERMISSIONS_BY_ROLE: Readonly<Record<RoleName, PermissionAction[]>>
 
 export function isProduction(): boolean {
   return process.env.NODE_ENV === NODE_ENV_PRODUCTION;
+}
+
+function readPositiveInt(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (!raw) {
+    return fallback;
+  }
+  const parsed = Number.parseInt(raw, 10);
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return fallback;
+  }
+  return parsed;
+}
+
+export function authLoginThrottleLimit(): number {
+  return readPositiveInt(
+    'AUTH_LOGIN_THROTTLE_LIMIT',
+    DEFAULT_AUTH_LOGIN_THROTTLE_LIMIT,
+  );
+}
+
+export function authLoginThrottleTtlSeconds(): number {
+  return readPositiveInt(
+    'AUTH_LOGIN_THROTTLE_TTL_SECONDS',
+    DEFAULT_AUTH_LOGIN_THROTTLE_TTL_SECONDS,
+  );
 }
 
 /** Session/JWT `Secure` flag; override with COOKIE_SECURE=true|false. */

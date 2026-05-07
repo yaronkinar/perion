@@ -10,15 +10,18 @@ import {
   Post,
   Put,
   Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { ROUTES } from '../common/constants';
-import { PermissionsGuard } from '../permissions/permissions.guard';
+import { MESSAGES } from '../common/messages';
 import { RequirePermission } from '../permissions/permissions.decorator';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { PermissionsGuard } from '../permissions/permissions.guard';
+import type { CreateUserDto } from './dto/create-user.dto';
+import type { UserListItemDto } from './dto/user-list-item.dto';
+import type { UpdateUserDto } from './dto/update-user.dto';
+import type { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
 @Controller(ROUTES.USERS)
@@ -28,10 +31,11 @@ export class UsersController {
 
   @Get()
   @RequirePermission('view_users')
-  findAll(@Req() req: Request): Promise<User[]> {
-    // PermissionsGuard already enforces an authenticated session, so
-    // req.session.user is guaranteed to be set when this handler runs.
-    const sessionUser = req.session.user!;
+  findAll(@Req() req: Request): Promise<UserListItemDto[]> {
+    const sessionUser = req.session.user;
+    if (!sessionUser) {
+      throw new UnauthorizedException(MESSAGES.NOT_AUTHENTICATED);
+    }
     return this.usersService.findAll(sessionUser.roleName);
   }
 

@@ -1,5 +1,4 @@
 export type { PermissionAction } from './permission.types';
-export { ALL_PERMISSIONS } from './permission.types';
 
 export type {
   Permission,

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import type { Request, Response } from 'express';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthController } from '../src/auth/auth.controller';
 import { AuthService } from '../src/auth/auth.service';
 import { JWT_COOKIE_NAME } from '../src/common/constants';
@@ -33,7 +34,10 @@ describe('AuthController.login', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [{ provide: AuthService, useValue: authService }],
-    }).compile();
+    })
+      .overrideGuard(ThrottlerGuard)
+      .useValue({ canActivate: jest.fn(() => true) })
+      .compile();
 
     controller = module.get(AuthController);
   });

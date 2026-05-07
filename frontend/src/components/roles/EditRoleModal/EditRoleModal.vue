@@ -14,7 +14,7 @@ import UiStack from '@/components/ui/primitives/UiStack.vue';
 
 import UiText from '@/components/ui/primitives/UiText.vue';
 
-import { PERMISSION_LABELS } from '@/constants/permissions';
+import { permissionLabel } from '@/constants/permissions';
 
 import { COPY } from '@/constants/messages';
 
@@ -100,7 +100,7 @@ const {
 
             @change="toggle(permission.id)"
           >
-            {{ PERMISSION_LABELS[permission.name] }}
+            {{ permissionLabel(permission.name) }}
           </UiPermissionCheckRow>
         </UiGrid>
 

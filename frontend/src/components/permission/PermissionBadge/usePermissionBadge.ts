@@ -1,8 +1,8 @@
 import { computed } from 'vue';
-import { PERMISSION_LABELS } from '@/constants/permissions';
+import { permissionLabel } from '@/constants/permissions';
 import type { PermissionAction } from '@/types/permission.types';
 
 export function usePermissionBadge(props: { action: PermissionAction }) {
-  const label = computed<string>(() => PERMISSION_LABELS[props.action]);
+  const label = computed<string>(() => permissionLabel(props.action));
   return { label };
 }

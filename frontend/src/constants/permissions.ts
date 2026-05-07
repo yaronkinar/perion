@@ -1,6 +1,6 @@
 import type { PermissionAction } from '@/types/permission.types';
 
-export const PERMISSION_LABELS: Record<PermissionAction, string> = {
+const KNOWN_PERMISSION_LABELS: Record<string, string> = {
   view_users: 'View users',
   create_user: 'Create user',
   edit_user: 'Edit user',
@@ -9,3 +9,14 @@ export const PERMISSION_LABELS: Record<PermissionAction, string> = {
   edit_roles: 'Edit roles',
   change_role: 'Change role',
 };
+
+export function permissionLabel(action: PermissionAction): string {
+  return (
+    KNOWN_PERMISSION_LABELS[action] ??
+    action
+      .split('_')
+      .filter(Boolean)
+      .map((segment) => segment[0]?.toUpperCase() + segment.slice(1))
+      .join(' ')
+  );
+}

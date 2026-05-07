@@ -36,7 +36,7 @@ export const createUserSchema = z.object({
 });
 
 /**
- * Schema for the "Edit user" form. Role is optional because Editor users
+ * Schema for the "Edit user" form. Role is optional because some users
  * cannot change roles (the field is disabled and excluded from the
  * outbound DTO at submit time). Email + name are still required.
  */

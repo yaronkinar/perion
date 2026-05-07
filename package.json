@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "present": "npx --yes serve . -l 50524"
+    "present": "npx --yes serve . -l 50524",
+    "lint:biome": "biome check backend/src backend/test frontend/src frontend/e2e --formatter-enabled=false --assist-enabled=false",
+    "format:biome": "biome format --write backend/src backend/test frontend/src frontend/e2e"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.14"

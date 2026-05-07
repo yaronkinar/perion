@@ -1,7 +1,7 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { QueryFailedError } from 'typeorm';
+import { DataSource, QueryFailedError } from 'typeorm';
 import { Role } from '../src/roles/entities/role.entity';
 import { User } from '../src/users/entities/user.entity';
 import { UsersService } from '../src/users/users.service';
@@ -72,6 +72,13 @@ describe('UsersService', () => {
         UsersService,
         { provide: getRepositoryToken(User), useValue: usersRepo },
         { provide: getRepositoryToken(Role), useValue: rolesRepo },
+        {
+          provide: DataSource,
+          useValue: {
+            getRepository: (entity: unknown) =>
+              entity === User ? usersRepo : rolesRepo,
+          },
+        },
       ],
     }).compile();
 
@@ -91,7 +98,7 @@ describe('UsersService', () => {
       const result = await service.findAll('Viewer');
       expect(result).toHaveLength(2);
       result.forEach((u) => {
-        expect((u as User).role).toBeUndefined();
+        expect(u.role).toBeUndefined();
       });
     });
   });

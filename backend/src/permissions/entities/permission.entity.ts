@@ -2,7 +2,6 @@ import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Role } from '../../roles/entities/role.entity';
 
 export type PermissionAction =
-  // Keep in sync with `frontend/src/types/permission.types.ts`.
   | 'view_users'
   | 'create_user'
   | 'edit_user'

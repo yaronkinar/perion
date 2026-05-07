@@ -20,6 +20,9 @@ export default defineConfig({
     headless: true,
     trace: 'retain-on-failure',
     screenshot: process.env.CI ? 'on' : 'only-on-failure',
+    video: process.env.CI
+      ? { mode: 'on', size: { width: 1280, height: 720 } }
+      : { mode: 'retain-on-failure', size: { width: 1280, height: 720 } },
     testIdAttribute: 'data-test',
   },
   projects: [

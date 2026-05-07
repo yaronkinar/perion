@@ -8,10 +8,14 @@ import {
   Req,
   Res,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import {
   AUTH_ENDPOINTS,
+  authLoginThrottleLimit,
+  authLoginThrottleTtlSeconds,
   JWT_COOKIE_MAX_AGE_MS,
   JWT_COOKIE_NAME,
   ROUTES,
@@ -44,6 +48,13 @@ export class AuthController {
 
   @Post(AUTH_ENDPOINTS.LOGIN)
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({
+    default: {
+      limit: authLoginThrottleLimit(),
+      ttl: authLoginThrottleTtlSeconds() * 1000,
+    },
+  })
   async login(
     @Body() dto: LoginDto,
     @Req() req: Request,
