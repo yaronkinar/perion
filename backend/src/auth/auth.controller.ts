@@ -20,8 +20,8 @@ import {
 import { MESSAGES } from '../common/messages';
 import { AuthService } from './auth.service';
 import type { PublicUserSummary } from './auth.service';
-import type { LoginDto } from './dto/login.dto';
-import type { SelectUserDto } from './dto/select-user.dto';
+import { LoginDto } from './dto/login.dto';
+import { SelectUserDto } from './dto/select-user.dto';
 import type { LoginResult } from './auth.service';
 import type { SessionUser } from './session.types';
 
