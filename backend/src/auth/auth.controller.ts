@@ -20,8 +20,8 @@ import {
 import { MESSAGES } from '../common/messages';
 import { AuthService } from './auth.service';
 import type { PublicUserSummary } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { SelectUserDto } from './dto/select-user.dto';
+import type { LoginDto } from './dto/login.dto';
+import type { SelectUserDto } from './dto/select-user.dto';
 import type { LoginResult } from './auth.service';
 import type { SessionUser } from './session.types';
 
@@ -55,7 +55,7 @@ export class AuthController {
       dto.password,
     );
     // Seed the session in addition to issuing the JWT, so the existing
-    // session-cookie-based guards (PermissionsGuard, /auth/me) work for
+    // session-cookie-based checks (PermissionsMiddleware, /auth/me) work for
     // browser clients without a separate JWT integration. Bearer-token
     // clients can still rely solely on the returned `token`.
     req.session.user = result.user;

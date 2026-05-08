@@ -3,6 +3,7 @@ import { defineComponent, h, nextTick, reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { useEditUserModal } from './useEditUserModal';
+import { useAuthStore } from '@/stores/auth.store';
 import type { Role } from '@/types/role.types';
 import type { User } from '@/types/user.types';
 
@@ -68,5 +69,18 @@ describe('useEditUserModal (blur validation)', () => {
 
     expect(h.result.errors.value.email).toBe('Email is invalid');
     expect(h.emit).not.toHaveBeenCalled();
+  });
+
+  it('allows role changes when user has edit_user permission', async () => {
+    const authStore = useAuthStore();
+    authStore.setUser({
+      ...user,
+      permissions: ['edit_user'],
+    });
+
+    const h = mountHarness();
+    await nextTick();
+
+    expect(h.result.canChangeRole.value).toBe(true);
   });
 });

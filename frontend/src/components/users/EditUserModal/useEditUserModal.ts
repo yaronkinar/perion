@@ -72,7 +72,9 @@ export function useEditUserModal(
   });
 
   const { can } = usePermission();
-  const canChangeRole = computed<boolean>(() => can('change_role'));
+  const canChangeRole = computed<boolean>(
+    () => can('change_role') || can('edit_user'),
+  );
 
   const roleOptions = computed<SelectOption<string>[]>(() =>
     props.roles.map((role) => ({ label: role.name, value: role.id })),
